@@ -25,7 +25,7 @@ class DateTimeEncoder(json.JSONEncoder):
 
 # Reading Configs
 config = configparser.ConfigParser()
-config.read('C:\\Users\Oscar\Desktop\Oscars Coding folder\PythonProjects\config.ini') 
+config.read('config.ini') 
 
 # Setting configuration values
 api_id = config['Telegram']['api_id']
