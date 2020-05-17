@@ -1,2 +1,2 @@
-# MetaTrader5_Bot
+# Trady-Boi
 Automating trades with Python
