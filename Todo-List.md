@@ -1,7 +1,7 @@
 # Todo List
-## Find Trading Program
-## Work out how to place trades
-## Integrate with Telegram
+## Function to parse Telegram data 
+## While loop to check telegram constantly
+## If SELL or other keyword -> Place trade 
 ## Make that fat dough
 ## Rake in the $$$
 ## Get those benjamins
