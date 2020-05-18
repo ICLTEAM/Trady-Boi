@@ -1,0 +1,22 @@
+#+TITLE: Python Trading Bot Plan
+#+DATE:18-05-2020
+* Project Structure Plan
+** Trading Method 
+   - Parsed Telegram Messages
+   - In the future explore other methods
+** Automating Trades 
+   - Using Oanda API
+* Todo List
+** TODO Integrate the telegram functions with sending orders
+** TODO Create a function to edit/close existing orders
+* Useful Resources
+** Oanda.com
+   http://developer.oanda.com/rest-live-v20/introduction/
+** Oanda Web Trading Platform
+   https://trade.oanda.com/
+** Python oandapyV20 pypi.org Documentation  
+   https://pypi.org/project/oandapyV20/
+** Oanda Github Repo
+   https://github.com/hootnot/oanda-api-v20
+** Trady-Boi Repo
+   https://github.com/isaacjeffersonlee/Trady-Boi/blob/master/bot.py
