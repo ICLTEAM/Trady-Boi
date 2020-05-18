@@ -63,7 +63,7 @@ async def main(phone):
 
     newest_message = []
 
-    async for message in client.iter_messages(my_channel,limit=1):
+    async for message in client.iter_messages(my_channel,limit=3):
         newest_message.append(message.text)
 
     print(str(newest_message))
@@ -71,6 +71,10 @@ async def main(phone):
     def signal_detector(message):
         None
 
+    def parse_message(message):
+        """ Converts String to List of words """
+        word_list = list(message.split(" "))
+        return word_list
 
 with client:
     client.loop.run_until_complete(main(phone))
