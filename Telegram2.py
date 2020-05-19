@@ -43,7 +43,7 @@ async def main(phone):
 
     #Translation of messages function
 
-    List_of_pairs = ['eurusd', 'usdjpy', 'gbpjpy', 'usdchf', 'usdcad', 'audusd', 'nzdusd', 'eurgbp', 'euraud', 'gbpjpy', 'chfjpy', 'nzdjpy', 'gbpcad', 'gbpnzd', 'xauusd', 'nasdaq']
+    List_of_pairs = ['eurusd', 'usdjpy', 'gbpjpy', 'usdchf', 'usdcad', 'gbpusd', 'audusd', 'nzdusd', 'eurgbp', 'euraud', 'gbpjpy', 'chfjpy', 'nzdjpy', 'gbpcad', 'gbpnzd', 'xauusd', 'nasdaq']
     list_of_indicators = ['sl', 'tp', 'stop', 'take', 'stoploss', 'takeprofit', 'tp1', 'tp2', 'tp3']
     punctuation = ['\n', '#', ':', '£', '*', '\', ']
     directions = ['buying', 'selling', 'sell', 'buy']
@@ -91,7 +91,6 @@ async def main(phone):
                     
                     val += 1
                     
-                    
             
         if 'close' in list_of_words:
             return 'Close', id
@@ -107,34 +106,34 @@ async def main(phone):
 
     current_signal = None
 
-    while True:
-        my_channel = await client.get_entity(entity)
-        newest_message = []
+    my_channel = await client.get_entity(entity)
+    newest_message = []
 
-        async for message in client.iter_messages(my_channel,limit=1):
-            newest_message.append(message.text)
+    async for message in client.iter_messages(my_channel,limit=1):
+        newest_message.append(message.text)
 
-        print(newest_message)
-        signal_to_give = Translator(newest_message)
-        print(signal_to_give)
+    return newest_message
+
+        #print(newest_message)
+        
+        #print(signal_to_give)
 
         #call to make trade
 
-        if signal_to_give != current_signal:
-            current_signal = signal_to_give
-            print('New signal inbound!')
-            #Isaac do stuff here to make trade.
-        else:
-            print('No new signals!')
 
-        time.sleep(5)
-
-
-    
-
-    
+try:
+    with client:
+        client.loop.run_until_complete(main(phone))
         
+    signal_to_give = Translator(newest_message)
 
-
-with client:
-    client.loop.run_until_complete(main(phone))
+    if signal_to_give != current_signal:
+        current_signal = signal_to_give
+        print('New signal inbound!')
+        print(signal_to_give)
+                #Isaac do stuff here to make trade.
+    else:
+        print('No new signals!')
+        
+except UnboundLocalError:
+    print('Cannot read signal.')
