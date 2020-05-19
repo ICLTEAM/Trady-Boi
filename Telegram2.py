@@ -2,6 +2,8 @@ import configparser
 import json
 import asyncio
 from datetime import date, datetime
+import time
+
 
 from telethon import TelegramClient
 from telethon.errors import SessionPasswordNeededError
@@ -10,22 +12,9 @@ from telethon.tl.types import (
     PeerChannel
 )
 
-
-# some functions to parse json date
-class DateTimeEncoder(json.JSONEncoder):
-    def default(self, o):
-        if isinstance(o, datetime):
-            return o.isoformat()
-
-        if isinstance(o, bytes):
-            return list(o)
-
-        return json.JSONEncoder.default(self, o)
-
-
 # Reading Configs
 config = configparser.ConfigParser()
-config.read('config.ini') 
+config.read('C:\\Users\Oscar\Desktop\Oscars Coding folder\PythonProjects\config.ini') 
 
 # Setting configuration values
 api_id = config['Telegram']['api_id']
@@ -52,6 +41,63 @@ async def main(phone):
 
     me = await client.get_me()
 
+    #Translation of messages function
+
+    List_of_pairs = ['eurusd', 'usdjpy', 'gbpjpy', 'usdchf', 'usdcad', 'audusd', 'nzdusd', 'eurgbp', 'euraud', 'gbpjpy', 'chfjpy', 'nzdjpy', 'gbpcad', 'gbpnzd', 'xauusd', 'nasdaq']
+    list_of_indicators = ['sl', 'tp', 'stop', 'take', 'stoploss', 'takeprofit', 'tp1', 'tp2', 'tp3']
+    punctuation = ['\n', '#', ':', '£', '*', '\', ']
+    directions = ['buying', 'selling', 'sell', 'buy']
+
+    def Translator(message):
+        words = ''.join(message)
+        words = words.lower()
+        words = words.replace('/', '')
+        
+        for item in punctuation:
+            words = words.replace(item, ' ')
+    
+
+        list_of_words = words.split(' ')
+
+        for item in list_of_words:
+            #print(item)
+            if item in List_of_pairs:
+                id = item
+        
+        dict_of_values = {}
+
+        for value in range(len(list_of_words)):
+            word = str(list_of_words[value])
+            
+            if word in directions:
+                direction = word[:3]
+            #print(type(word))
+            
+            if word in list_of_indicators:
+                val = value
+                i = word
+                #print(i)
+                
+                
+                while val < len(list_of_words):
+                    word = list_of_words[val]
+                    try:
+                        float(word)
+                        #print(word)
+                        dict_of_values[i] = word
+                        break
+                    except ValueError:
+                        None
+                    
+                    val += 1
+                    
+                    
+            
+        if 'close' in list_of_words:
+            return 'Close', id
+        else:
+            return id, direction, dict_of_values
+
     user_input_channel = 'https://t.me/joinchat/AAAAAFE68OMuZqcIMIjbZQ'
 
     if user_input_channel.isdigit():
@@ -59,22 +105,36 @@ async def main(phone):
     else:
         entity = user_input_channel
 
-    my_channel = await client.get_entity(entity)
+    current_signal = None
 
-    newest_message = []
+    while True:
+        my_channel = await client.get_entity(entity)
+        newest_message = []
 
-    async for message in client.iter_messages(my_channel,limit=3):
-        newest_message.append(message.text)
+        async for message in client.iter_messages(my_channel,limit=1):
+            newest_message.append(message.text)
 
-    print(str(newest_message))
+        print(newest_message)
+        signal_to_give = Translator(newest_message)
+        print(signal_to_give)
+
+        #call to make trade
+
+        if signal_to_give != current_signal:
+            current_signal = signal_to_give
+            print('New signal inbound!')
+            #Isaac do stuff here to make trade.
+        else:
+            print('No new signals!')
+
+        time.sleep(5)
+
+
     
-    def signal_detector(message):
-        None
 
-    def parse_message(message):
-        """ Converts String to List of words """
-        word_list = list(message.split(" "))
-        return word_list
+    
+        
+
 
 with client:
     client.loop.run_until_complete(main(phone))
