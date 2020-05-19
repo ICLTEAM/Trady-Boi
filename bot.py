@@ -54,7 +54,7 @@ my_token = "98687799930ef52671ed0b5cedfd5a94-b7c6913e9ed847fa80f17863b502a698"
 api = API(access_token = my_token)
 accountID = "101-004-14849550-001" 
 
-def get_trades():
+def list_trades():
     r = trades.TradesList(accountID)
     print("REQUEST:{}".format(r))
     rv = api.request(r)
@@ -124,11 +124,9 @@ def close_order(order_tradeID, order_units):
 
     
 
-    
-
 
 ### CALLING FUNCTIONS ###
 #create_market_order("AUD_CAD", 100, 0.95, 0.90)
-#get_trades()
+#list_trades()
 #create_trailing_stop_loss_order("21", 0.02, "GTC")
 #close_order("40", "ALL")
