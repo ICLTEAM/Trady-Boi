@@ -106,34 +106,35 @@ async def main(phone):
 
     current_signal = None
 
-    my_channel = await client.get_entity(entity)
-    newest_message = []
+    while True:
+        my_channel = await client.get_entity(entity)
+        newest_message = []
 
-    async for message in client.iter_messages(my_channel,limit=1):
-        newest_message.append(message.text)
-
-    return newest_message
+        async for message in client.iter_messages(my_channel,limit=1):
+            newest_message.append(message.text)
 
         #print(newest_message)
+        try:
+            signal_to_give = Translator(newest_message)
+
+            if signal_to_give != current_signal:
+                current_signal = signal_to_give
+                print('New signal inbound!')
+                print(signal_to_give)
+                #Isaac do stuff here to make trade.
+            else:
+                print('No new signals!')
         
+        except UnboundLocalError:
+            print('Cannot read signal.')
         #print(signal_to_give)
 
         #call to make trade
 
-
-try:
-    with client:
-        client.loop.run_until_complete(main(phone))
         
-    signal_to_give = Translator(newest_message)
 
-    if signal_to_give != current_signal:
-        current_signal = signal_to_give
-        print('New signal inbound!')
-        print(signal_to_give)
-                #Isaac do stuff here to make trade.
-    else:
-        print('No new signals!')
-        
-except UnboundLocalError:
-    print('Cannot read signal.')
+        time.sleep(10)
+
+
+with client:
+    client.loop.run_until_complete(main(phone))
