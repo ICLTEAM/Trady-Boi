@@ -356,6 +356,8 @@ async def main(phone):
                 
                 except UnboundLocalError:
                     print('Cannot read signal.')
+                except KeyError:
+                    print('Cannot read')
                 #print(signal_to_give)
 
                 #call to make trade
