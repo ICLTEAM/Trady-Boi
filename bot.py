@@ -291,7 +291,7 @@ async def main(phone):
         else:
             return id, direction, dict_of_values
 
-    user_input_channel = 'https://t.me/joinchat/AAAAAFE68OMuZqcIMIjbZQ'
+    user_input_channel = '1314870937'
 
     if user_input_channel.isdigit():
         entity = PeerChannel(int(user_input_channel))
@@ -343,6 +343,9 @@ async def main(phone):
                             create_market_order(instrument, -5000, tp, sl)
                         elif order_type =='buy':
                             create_market_order(instrument, 5000, tp, sl)
+                        #add order cancellation here !!!!!!!!!#
+                        elif order_type == 'close':
+                            None
                         else:
                             print("Error: Not a valid buy/sell order type")
                             
@@ -359,7 +362,12 @@ async def main(phone):
                 except KeyError:
                     print('Cannot read signal')
                 except IndexError:
-                    print('Cannot read signal')
+                    signal_to_give = Translator(newest_message)
+                    if signal_to_give[1] == 'close':
+                        None
+                        #Isacc add more close stuff here !!!!!!
+                    else:
+                        print('Cannot read signal')
                 
                     
                 #print(signal_to_give)
