@@ -304,9 +304,15 @@ async def main(phone):
                         # Stop loss
                         sl = signal_to_give[2]['stop']
                         print("Stop Loss = {}".format(sl))
-
                         # Creating a market order -> create_market_order(instrument, units, takeProfit, stopLoss)
-                        create_market_order(instrument, 100, tp, sl)
+                        # Test for buy or sell -> if sel then negative units used
+                        if order_type == 'sel':
+                            create_market_order(instrument, -100, tp, sl)
+                        elif order_type =='buy':
+                            create_market_order(instrument, 100, tp, sl)
+                        else:
+                            print("Error: Not a valid buy/sell order type")
+                            
 
                         # Create_trailing_stop_loss_order(order_tradeID, order_distance, order_timeInForce):
 
