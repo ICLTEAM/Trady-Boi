@@ -197,7 +197,7 @@ async def main(phone):
 #------------------------------------ TELEGRAM FUNCTIONS ---------------------------------------#
 #===============================================================================================#
 
-    List_of_pairs = ['audcad', 'audchf', 'audjpy', 'audnzd', 'audusd', 'cadchf', 'cadjpy', 'chfjpy', 'euraud', 'gbpnzd', 'eurgbp', 'nzdusd', 'nzdjpy', 'gbpusd', 'gbpjpy', 'eurjpy', 'usdcad', 'gbpcad', 'eurusd', 'xauusd', 'usdjpy', 'usdchf', 'eurnzd', 'gbpchf', 'usoil', 'eurcad', 'nzdcad', 'us30', 'nas100']
+    List_of_pairs = ['audcad', 'audchf', 'audjpy', 'audnzd', 'audusd', 'cadchf', 'cadjpy', 'chfjpy', 'euraud', 'gbpnzd', 'eurgbp', 'nzdusd', 'nzdjpy', 'gbpusd', 'gbpjpy', 'eurjpy', 'usdcad', 'gbpcad', 'eurusd', 'xauusd', 'usdjpy', 'usdchf', 'eurnzd', 'gbpchf', 'usoil', 'eurcad', 'nzdcad', 'us30', 'nas100', 'gbpaud']
     list_of_sl_indicators = ['sl',  'stop',  'stoploss']
     list_of_tp_indicators = ['tp', 'take', 'takeprofit','tp1', 'tp2', 'tp3']
     punctuation = ['\n', '#', ':', '£', '*', '\\', '📈', '📉', '/']
@@ -233,16 +233,30 @@ async def main(phone):
 
         for value in range(len(list_of_words)):
             word = str(list_of_words[value])
-            
+            val = value
+            #Checks to see if buy limit/sell limit and adds limit to dict
             if word in directions:
                 direction = word[:3]
+                if 'limit' in list_of_words:
+                    
+                    while val < len(list_of_words):
+                        word = list_of_words[val]
+                        try:
+                            float(word)
+                            #print(word)
+                            dict_of_values['limit'] = word
+                            break
+                        except ValueError:
+                            None
+                    
+                        val += 1
             #print(type(word))
             
             if word in list_of_sl_indicators:
-                val = value
+                
                 i = 'sl'
                 #print(i)
-                
+
                 while val < len(list_of_words):
                     word = list_of_words[val]
                     try:
@@ -305,7 +319,7 @@ async def main(phone):
                 #print(newest_message)
                 try:
                     signal_to_give = Translator(newest_message)
-
+                    
                     if signal_to_give != current_signal:
                         # Parse the signal into variables
                         current_signal = signal_to_give
