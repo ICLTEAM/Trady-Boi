@@ -287,7 +287,7 @@ async def main(phone):
                     val += 1
             
         if 'close' in list_of_words:
-            return 'Close', id
+            return id, 'close'
         else:
             return id, direction, dict_of_values
 
@@ -340,9 +340,9 @@ async def main(phone):
                         # Creating a market order -> create_market_order(instrument, units, takeProfit, stopLoss)
                         # Test for buy or sell -> if sel then negative units used
                         if order_type == 'sel':
-                            create_market_order(instrument, -1000, tp, sl)
+                            create_market_order(instrument, -5000, tp, sl)
                         elif order_type =='buy':
-                            create_market_order(instrument, 1000, tp, sl)
+                            create_market_order(instrument, 5000, tp, sl)
                         else:
                             print("Error: Not a valid buy/sell order type")
                             
@@ -357,11 +357,15 @@ async def main(phone):
                 except UnboundLocalError:
                     print('Cannot read signal.')
                 except KeyError:
-                    print('Cannot read')
+                    print('Cannot read signal')
+                except IndexError:
+                    print('Cannot read signal')
+                
+                    
                 #print(signal_to_give)
 
                 #call to make trade
-                time.sleep(10)
+                time.sleep(30)
         except errors.FloodWaitError as e:
             print('Sleeping')
             time.sleep(90)
@@ -376,3 +380,9 @@ with client:
 #create_trailing_stop_loss_order("21", 0.02, "GTC")
 #close_order("40", "ALL")
 
+#To do list 
+
+# - check all orders to avoid running multiple of same order
+# - add trailing stop loss
+# - close trades
+# - add buy limit and stop limit orders
