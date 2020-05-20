@@ -65,10 +65,10 @@ from telethon.tl.types import (
 #------------------------------------ TRADING API SETUP ----------------------------------------#
 #===============================================================================================#
 
-my_token = "c5981e86d3afb5a81603526ef47f4283-589c3b8f748c24f91abc1057686e0c4c"
-
+#oscar_token = "c5981e86d3afb5a81603526ef47f4283-589c3b8f748c24f91abc1057686e0c4c"
+isaac_token = "98687799930ef52671ed0b5cedfd5a94-b7c6913e9ed847fa80f17863b502a698"
 # Creating the API Object
-api = API(access_token = my_token)
+api = API(access_token = isaac_token)
 accountID = "101-004-14849550-001" 
 
 
@@ -256,7 +256,7 @@ async def main(phone):
                     
             elif word in list_of_tp_indicators:
                 val = value
-                i = 'sl'
+                i = 'tp'
                 #print(i)
                 
                 while val < len(list_of_words):
@@ -317,10 +317,10 @@ async def main(phone):
                         order_type = signal_to_give[1]
                         print("Buy/Sell = {}".format(order_type))
                         # Take Profit
-                        tp = signal_to_give[2]['take']
+                        tp = signal_to_give[2]['tp']
                         print("Take Profit = {}".format(tp))
                         # Stop loss
-                        sl = signal_to_give[2]['stop']
+                        sl = signal_to_give[2]['sl']
                         print("Stop Loss = {}".format(sl))
                         # Creating a market order -> create_market_order(instrument, units, takeProfit, stopLoss)
                         # Test for buy or sell -> if sel then negative units used
