@@ -15,7 +15,7 @@ from telethon.tl.types import (
 
 # Reading Configs
 config = configparser.ConfigParser()
-config.read('C:\\Users\Oscar\Desktop\Oscars Coding folder\PythonProjects\config.ini') 
+config.read('config.ini')  #-- Simplified by Isaac
 
 # Setting configuration values
 api_id = config['Telegram']['api_id']
