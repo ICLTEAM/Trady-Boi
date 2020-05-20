@@ -65,7 +65,7 @@ from telethon.tl.types import (
 #------------------------------------ TRADING API SETUP ----------------------------------------#
 #===============================================================================================#
 
-my_token = "98687799930ef52671ed0b5cedfd5a94-b7c6913e9ed847fa80f17863b502a698"
+my_token = "c5981e86d3afb5a81603526ef47f4283-589c3b8f748c24f91abc1057686e0c4c"
 
 # Creating the API Object
 api = API(access_token = my_token)
@@ -197,7 +197,8 @@ async def main(phone):
 #===============================================================================================#
 
     List_of_pairs = ['audcad', 'audchf', 'audjpy', 'audnzd', 'audusd', 'cadchf', 'cadjpy', 'chfjpy', 'euraud', 'gbpnzd', 'eurgbp', 'nzdusd', 'nzdjpy', 'gbpusd', 'gbpjpy', 'eurjpy', 'usdcad', 'gbpcad', 'eurusd', 'xauusd', 'usdjpy', 'usdchf', 'eurnzd', 'gbpchf', 'usoil', 'eurcad', 'nzdcad', 'us30', 'nas100']
-    list_of_indicators = ['sl', 'tp', 'stop', 'take', 'stoploss', 'takeprofit', 'tp1', 'tp2', 'tp3']
+    list_of_sl_indicators = ['sl',  'stop',  'stoploss']
+    list_of_tp_indicators = ['tp', 'take', 'takeprofit','tp1', 'tp2', 'tp3']
     punctuation = ['\n', '#', ':', '£', '*', '\\', '📈', '📉', '/']
     directions = ['buying', 'selling', 'sell', 'buy']
 
@@ -236,9 +237,26 @@ async def main(phone):
                 direction = word[:3]
             #print(type(word))
             
-            if word in list_of_indicators:
+            if word in list_of_sl_indicators:
                 val = value
-                i = word
+                i = 'sl'
+                #print(i)
+                
+                while val < len(list_of_words):
+                    word = list_of_words[val]
+                    try:
+                        float(word)
+                        #print(word)
+                        dict_of_values[i] = word
+                        break
+                    except ValueError:
+                        None
+                    
+                    val += 1
+                    
+            elif word in list_of_tp_indicators:
+                val = value
+                i = 'sl'
                 #print(i)
                 
                 while val < len(list_of_words):
@@ -307,9 +325,9 @@ async def main(phone):
                         # Creating a market order -> create_market_order(instrument, units, takeProfit, stopLoss)
                         # Test for buy or sell -> if sel then negative units used
                         if order_type == 'sel':
-                            create_market_order(instrument, -100, tp, sl)
+                            create_market_order(instrument, -1000, tp, sl)
                         elif order_type =='buy':
-                            create_market_order(instrument, 100, tp, sl)
+                            create_market_order(instrument, 1000, tp, sl)
                         else:
                             print("Error: Not a valid buy/sell order type")
                             
