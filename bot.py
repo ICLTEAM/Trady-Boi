@@ -65,13 +65,18 @@ from telethon.tl.types import (
 #------------------------------------ TRADING API SETUP ----------------------------------------#
 #===============================================================================================#
 
-oscar_token = "9d6e6cd1c372515f82dfda2de4b7540f-cd6cafe8b8da1ba8a83d3964e05252e1"
-#isaac_token = "98687799930ef52671ed0b5cedfd5a94-b7c6913e9ed847fa80f17863b502a698"
+#oscar_token = "9d6e6cd1c372515f82dfda2de4b7540f-cd6cafe8b8da1ba8a83d3964e05252e1"
+isaac_token = "98687799930ef52671ed0b5cedfd5a94-b7c6913e9ed847fa80f17863b502a698"
 #number = +44 7375 066642
 # Creating the API Object
-api = API(access_token = oscar_token)
-accountID = "101-004-14834458-001" 
-
+try:
+    api = API(access_token = oscar_token)
+    accountID = "101-004-14834458-001"  # Oscar Oanda AccountID
+    print("Using Oscars' Account")
+except NameError:
+    api = API(access_token = isaac_token)
+    accountID = "101-004-14849550-001"   # Isaac Oanda AccountID
+    print("Using Isaacs' Account")
 
 #===============================================================================================#
 #------------------------------------ TRADING FUNCTIONS ----------------------------------------#
