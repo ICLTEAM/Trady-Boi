@@ -12,8 +12,9 @@
 #===============================================================================================#
 # DONE check all orders to avoid running multiple of same order
 # DONE close trades
-# TODO add trailing stop loss
-# TODO add buy limit and stop limit orders
+# TODO add trailing stop loss - Question: How do I know when to add a stop loss to the order?
+# DONE add buy limit order
+# DONE add stop limit order
 #===============================================================================================#
 #------------------------------------- MODULE IMPORTS ------------------------------------------#
 #===============================================================================================#
@@ -21,11 +22,12 @@ import json
 from oandapyV20 import API
 import oandapyV20.endpoints.trades as trades
 from oandapyV20.contrib.requests import MarketOrderRequest
+from oandapyV20.contrib.requests import LimitOrderRequest
+from oandapyV20.contrib.requests import StopOrderRequest
 from oandapyV20.contrib.requests import TakeProfitDetails, StopLossDetails
 from oandapyV20.contrib.requests import TrailingStopLossOrderRequest
 from oandapyV20.contrib.requests import TradeCloseRequest
 import oandapyV20.endpoints.orders as orders
-#from oandapyV20.endpoints.trades import 
 import oandapyV20
 import configparser
 import asyncio
@@ -154,6 +156,51 @@ def create_market_order(order_instrument, order_units, order_take_profit, order_
     else:
         print(json.dumps(rv, indent=2))
 
+def create_limit_order(order_instrument, order_units, order_take_profit, order_stop_loss, order_price):
+    """ 
+    Create a limit order.
+    The Limit Order will only be filled by a market price that is equal to or better than this price.
+    """
+    # Create the order body
+    ordr = LimitOrderRequest(
+        instrument = order_instrument,
+        units = order_units,
+        takeProfitOnFill=TakeProfitDetails(price=order_take_profit).data,
+        stopLossOnFill=StopLossDetails(price=order_stop_loss).data,
+        price = order_price)
+    # create the OrderCreate request
+    r = orders.OrderCreate(accountID, data=ordr.data)
+    try:
+        # create the OrderCreate request
+        rv = api.request(r)
+    except oandapyV20.exceptions.V20Error as err:
+        print(r.status_code, err)
+    else:
+        print(json.dumps(rv, indent=2))
+
+def create_stop_order(order_instrument, order_units, order_take_profit, order_stop_loss, order_price):
+    """ 
+    Create a stop order.
+    A StopOrder is an order that is created with a price threshold, and will only be filled by a price that is equal to or worse 
+    than the threshold.
+    """
+    # Create the order body
+    ordr = StopOrderRequest(
+        instrument = order_instrument,
+        units = order_units,
+        takeProfitOnFill=TakeProfitDetails(price=order_take_profit).data,
+        stopLossOnFill=StopLossDetails(price=order_stop_loss).data,
+        price = order_price)
+    # create the OrderCreate request
+    r = orders.OrderCreate(accountID, data=ordr.data)
+    try:
+        # create the OrderCreate request
+        rv = api.request(r)
+    except oandapyV20.exceptions.V20Error as err:
+        print(r.status_code, err)
+    else:
+        print(json.dumps(rv, indent=2))
+
 def create_trailing_stop_loss_order(order_tradeID, order_distance, order_timeInForce):
     """ Create a trailing stop loss order """
     ordr = TrailingStopLossOrderRequest(
@@ -190,6 +237,7 @@ def close_order(order_tradeID, order_units):
         print(r.status_code, err)
     else:
         print(json.dumps(rv, indent=2))
+
 #===============================================================================================#
 #------------------------------------ TELEGRAM API SETUP ---------------------------------------#
 #===============================================================================================#
@@ -278,9 +326,6 @@ def Translator(message):
             return id, 'close'
         else:
             return id, direction, dict_of_values
-
-
-
 #===============================================================================================#
 #---------------------------------- MAIN LOOP FUNCTION -----------------------------------------#
 #===============================================================================================#
@@ -308,32 +353,32 @@ async def main(phone):
                 newest_message = []
                 async for message in client.iter_messages(my_channel,limit=1):
                     newest_message.append(message.text)
-                #print(newest_message)
                 try:
                     signal_to_give = Translator(newest_message)
                     if signal_to_give != current_signal:
                         # Parse the signal into variables
                         current_signal = signal_to_give
-                        print('New signal inbound!')
+                        #print('New signal inbound!')
                         print("Signal: {}".format(signal_to_give))
-                        #Isaac do stuff here to make trade.
+                        # Currency Pair/Instrument
                         instrument = signal_to_give[0]
-                        print("Instrument = {}".format(instrument))
+                        # Buy/Sell/Close
                         order_type = signal_to_give[1]
-                        print("Buy/Sell = {}".format(order_type))
                         # Take Profit
-                        tp = signal_to_give[2]['tp']
-                        print("Take Profit = {}".format(tp))
+                        tp = signal_to_give[2]['tp'] 
                         # Stop loss
                         sl = signal_to_give[2]['sl']
-                        print("Stop Loss = {}".format(sl))
-                        # Creating a market order - create_market_order(instrument, units, takeProfit, stopLoss)
+                        # Unique tradeID
                         tradeID = get_trade_info_by_instrument(instrument)['tradeID']
-                        # Test for buy or sell - if 'sel' then negative units used
+                        # Number of units 
                         units = 1000
+                        # Test for buy or sell - if 'sel' then negative units used
                         if order_type == 'sel':
-                            sell_units = -1 * units # To sell units must be negative
+                            # To sell units must be negative
+                            sell_units = -1 * units 
+                            # Check if the trade already exists
                             if check_for_existing_trades(instrument, sell_units) == False: 
+                                # Creating a market order - create_market_order(instrument, units, takeProfit, stopLoss)
                                 create_market_order(instrument, sell_units, tp, sl)
                             else:
                                 print("{} Trade with {} units already exists!".format(instrument, sell_units))
@@ -344,6 +389,7 @@ async def main(phone):
                             else:
                                 print("{} Trade with {} units already exists!".format(instrument, buy_units))
                         elif order_type == 'close':
+                            # Close the order, using its tradeID
                             close_order(tradeID, 'ALL')
                         else:
                             print("Error: Not a valid buy/sell order type")
@@ -358,9 +404,9 @@ async def main(phone):
                     if signal_to_give[1] == 'close':
                         None
                         #Isaac add more close stuff here !!!!!!
+                        # Why do I need to close an order if we get an error? - Isaac 
                     else:
                         print('IndexError: Cannot read signal')
-                #print(signal_to_give)
                 time.sleep(30)
         except errors.FloodWaitError as e:
             print('Sleeping')
@@ -368,10 +414,10 @@ async def main(phone):
 #===============================================================================================#
 #------------------------------------ CALLING FUNCTIONS ----------------------------------------#
 #===============================================================================================#
-with client:
-    client.loop.run_until_complete(main(phone))
+# with client:
+#     client.loop.run_until_complete(main(phone))
 
-### TRADING FUNCTIONS ###
+### TESTING FUNCTIONS ###
 #create_market_order("AUD_CHF", 69, 0.65, 0.60)
 #get_trades()
 #print(get_trade_info_by_instrument("AUD_CAD")['tradeID'])
@@ -379,5 +425,6 @@ with client:
 #print(check_for_existing_trades('AUD_CAD', '69'))
 #create_trailing_stop_loss_order("21", 0.02, "GTC")
 #close_order("40", "ALL")
-
+#create_limit_order('AUD_CAD', 77, 0.93, 0.90, '0.91')
+#create_stop_order('AUD_CAD', 28, 0.93, 0.90, 0.91)
 
