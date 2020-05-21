@@ -1,44 +1,21 @@
 # First Created: 17/05/2020
-# Authors: Oscar Weeding, Isaac Lee
+# Authors: Oscar Wooding, Isaac Lee
 
-#                              .-----.
-#                             /7  .  (
-#                            /   .-.  \
-#                           /   /   \  \
-#                          / `  )   (   )
-#                         / `   )   ).  \
-#                       .'  _.   \_/  . |
-#      .--.           .' _.' )`.        |
-#     (    `---...._.'   `---.'_)    ..  \
-#      \            `----....___    `. \  |
-#       `.           _ ----- _   `._  )/  |
-#         `.       /"  \   /"  \`.  `._   |
-#           `.    ((O)` ) ((O)` ) `.   `._\
-#             `-- '`---'   `---' )  `.    `-.
-#                /                  ` \      `-.
-#              .'                      `.       `.
-#             /                     `  ` `.       `-.
-#      .--.   \ ===._____.======. `    `   `. .___.--`     .''''.
-#     ' .` `-. `.                )`. `   ` ` \          .' . '  8)
-#    (8  .  ` `-.`.               ( .  ` `  .`\      .'  '    ' /
-#     \  `. `    `-.               ) ` .   ` ` \  .'   ' .  '  /
-#      \ ` `.  ` . \`.    .--.     |  ` ) `   .``/   '  // .  /
-#       `.  ``. .   \ \   .-- `.  (  ` /_   ` . / ' .  '/   .'
-#         `. ` \  `  \ \  '-.   `-'  .'  `-.  `   .  .'/  .'
-#           \ `.`.  ` \ \    ) /`._.`       `.  ` .  .'  /
-#            |  `.`. . \ \  (.'               `.   .'  .'
-#         __/  .. \ \ ` ) \                     \.' .. \__
-#  .-._.-'     '"  ) .-'   `.                   (  '"     `-._.--.
-# (_________.-====' / .' /\_)`--..__________..-- `====-. _________)
-#                  (.'(.'
-# "Ribbit" - Froge
-
-
-
-# API Information
-#98687799930ef52671ed0b5cedfd5a94-b7c6913e9ed847fa80f17863b502a698
+# ████████╗██████╗░░█████╗░██████╗░██╗░░░██╗  ██████╗░░█████╗░██╗
+# ╚══██╔══╝██╔══██╗██╔══██╗██╔══██╗╚██╗░██╔╝  ██╔══██╗██╔══██╗██║
+# ░░░██║░░░██████╔╝███████║██║░░██║░╚████╔╝░  ██████╦╝██║░░██║██║
+# ░░░██║░░░██╔══██╗██╔══██║██║░░██║░░╚██╔╝░░  ██╔══██╗██║░░██║██║
+# ░░░██║░░░██║░░██║██║░░██║██████╔╝░░░██║░░░  ██████╦╝╚█████╔╝██║
+# ░░░╚═╝░░░╚═╝░░╚═╝╚═╝░░╚═╝╚═════╝░░░░╚═╝░░░  ╚═════╝░░╚════╝░╚═╝
 #===============================================================================================#
-#------------------------------------ IMPORTS --------------------------------------------------#
+#--------------------------------------- TODO LIST ---------------------------------------------#
+#===============================================================================================#
+# TODO check all orders to avoid running multiple of same order
+# TODO add trailing stop loss
+# TODO close trades
+# TODO add buy limit and stop limit orders
+#===============================================================================================#
+#------------------------------------- MODULE IMPORTS ------------------------------------------#
 #===============================================================================================#
 import json
 from oandapyV20 import API
@@ -62,9 +39,16 @@ from telethon.tl.types import (
     PeerChannel
 )
 #===============================================================================================#
+#------------------------------------ GLOBAL VARIABLES -----------------------------------------#
+#===============================================================================================#
+list_of_pairs = ['audcad', 'audchf', 'audjpy', 'audnzd', 'audusd', 'cadchf', 'cadjpy', 'chfjpy', 'euraud', 'gbpnzd', 'eurgbp', 'nzdusd', 'nzdjpy', 'gbpusd', 'gbpjpy', 'eurjpy', 'usdcad', 'gbpcad', 'eurusd', 'xauusd', 'usdjpy', 'usdchf', 'eurnzd', 'gbpchf', 'usoil', 'eurcad', 'nzdcad', 'us30', 'nas100', 'gbpaud']
+list_of_sl_indicators = ['sl',  'stop',  'stoploss']
+list_of_tp_indicators = ['tp', 'take', 'takeprofit','tp1', 'tp2', 'tp3']
+punctuation = ['\n', '#', ':', '£', '*', '\\', '📈', '📉', '/']
+directions = ['buying', 'selling', 'sell', 'buy']
+#===============================================================================================#
 #------------------------------------ TRADING API SETUP ----------------------------------------#
 #===============================================================================================#
-
 #oscar_token = "9d6e6cd1c372515f82dfda2de4b7540f-cd6cafe8b8da1ba8a83d3964e05252e1"
 isaac_token = "98687799930ef52671ed0b5cedfd5a94-b7c6913e9ed847fa80f17863b502a698"
 #number = +44 7375 066642
@@ -77,17 +61,16 @@ except NameError:
     api = API(access_token = isaac_token)
     accountID = "101-004-14849550-001"   # Isaac Oanda AccountID
     print("Using Isaacs' Account")
-
+# NOTE: For some reason if I switch to my account after already first running it with Oscars then
+# it still uses Oscars? To fix I have to relaunch my python shell
 #===============================================================================================#
 #------------------------------------ TRADING FUNCTIONS ----------------------------------------#
 #===============================================================================================#
-
 def list_trades():
     r = trades.TradesList(accountID)
     print("REQUEST:{}".format(r))
     rv = api.request(r)
     print("RESPONSE:\n{}".format(json.dumps(rv, indent=2)))
-
 
 def create_market_order(order_instrument, order_units, order_take_profit, order_stop_loss):
     """ 
@@ -111,23 +94,20 @@ def create_market_order(order_instrument, order_units, order_take_profit, order_
     else:
         print(json.dumps(rv, indent=2))
 
-
-
 def create_trailing_stop_loss_order(order_tradeID, order_distance, order_timeInForce):
     """ Create a trailing stop loss order """
     ordr = TrailingStopLossOrderRequest(
-         # The ID of the Trade to close when the price threshold is breached.
-         tradeID = order_tradeID,
-         # The price distance (in price units) specified for the TrailingStopLoss Order.
-         distance = order_distance,
-         # The time-in-force requested for the TrailingStopLoss Order. Restricted to
-         # “GTC”, “GFD” and “GTD” for TrailingStopLoss Orders.
-         timeInForce = order_timeInForce
-         # The date/time when the StopLoss Order will be cancelled if its
-         # timeInForce is “GTD”.
-         #gtdTime = order_gtdTime
-         )
-    
+        # The ID of the Trade to close when the price threshold is breached.
+        tradeID = order_tradeID,
+        # The price distance (in price units) specified for the TrailingStopLoss Order.
+        distance = order_distance,
+        # The time-in-force requested for the TrailingStopLoss Order. Restricted to
+        # “GTC”, “GFD” and “GTD” for TrailingStopLoss Orders.
+        timeInForce = order_timeInForce
+        # The date/time when the StopLoss Order will be cancelled if its
+        # timeInForce is “GTD”.
+        #gtdTime = order_gtdTime
+        )
     # create the OrderCreate request
     r = orders.OrderCreate(accountID, data=ordr.data)
     try:
@@ -138,52 +118,112 @@ def create_trailing_stop_loss_order(order_tradeID, order_distance, order_timeInF
     else:
         print(json.dumps(rv, indent=2))
 
-
-
 def close_order(order_tradeID, order_units):
-     """ Close an order """
-     ordr = TradeCloseRequest(units=order_units)
-     # Create TradeClose order request
-     r = trades.TradeClose(accountID, tradeID=order_tradeID, data=ordr.data)
-     # Perform the request
-     try:
-         rv = api.request(r)
-     except oandapyV20.exceptions.V20Error as err:
-         print(r.status_code, err)
-     else:
-         print(json.dumps(rv, indent=2))
-
-
-    
-
-
-### CALLING FUNCTIONS ###
-#create_market_order("AUD_CAD", 100, 0.95, 0.90)
-#list_trades()
-#create_trailing_stop_loss_order("21", 0.02, "GTC")
-#close_order("40", "ALL")
-
-
+    """ Close an order """
+    ordr = TradeCloseRequest(units=order_units)
+    # Create TradeClose order request
+    r = trades.TradeClose(accountID, tradeID=order_tradeID, data=ordr.data)
+    # Perform the request
+    try:
+        rv = api.request(r)
+    except oandapyV20.exceptions.V20Error as err:
+        print(r.status_code, err)
+    else:
+        print(json.dumps(rv, indent=2))
 #===============================================================================================#
 #------------------------------------ TELEGRAM API SETUP ---------------------------------------#
 #===============================================================================================#
-
 # Reading Configs
 config = configparser.ConfigParser()
 config.read('config.ini')  #-- Simplified by Isaac
-
 # Setting configuration values
 api_id = config['Telegram']['api_id']
 api_hash = config['Telegram']['api_hash']
-
 api_hash = str(api_hash)
-
 phone = config['Telegram']['phone']
 username = config['Telegram']['username']
-
 # Create the client and connect
 client = TelegramClient(username, api_id, api_hash)
+#===============================================================================================#
+#------------------------------------ TRANSLATOR FUNCTION --------------------------------------#
+#===============================================================================================#
+def Translator(message):
+    """ Parse telegram order messages """
+    words = ''.join(message)
+    words = words.lower()
+    words = words.replace('/', '')
+    for item in punctuation:
+        words = words.replace(item, ' ')
+        list_of_words = words.split(' ')
+        for item in list_of_words:
+            #print(item)
+            if item in list_of_pairs:
+                # Convert 'audjpy' to 'AUD_JPY'
+                new_pair = ""
+                counter = 0
+                for char in item:
+                    if counter != 3:
+                        new_pair += char.upper()
+                    else:
+                        new_pair += "_" + char.upper()
+                        counter += 1
+                        id = new_pair
+        dict_of_values = {}
+        for value in range(len(list_of_words)):
+            word = str(list_of_words[value])
+            val = value
+            #Checks to see if buy limit/sell limit and adds limit to dict
+            if word in directions:
+                direction = word[:3]
+                if 'limit' in list_of_words:
+                    while val < len(list_of_words):
+                        word = list_of_words[val]
+                        try:
+                            float(word)
+                            #print(word)
+                            dict_of_values['limit'] = word
+                            break
+                        except ValueError:
+                            None
+                        val += 1
+                        #print(type(word))
+            if word in list_of_sl_indicators:
+                i = 'sl'
+                #print(i)
+                while val < len(list_of_words):
+                    word = list_of_words[val]
+                    try:
+                        float(word)
+                        #print(word)
+                        dict_of_values[i] = word
+                        break
+                    except ValueError:
+                        None
+                    val += 1
+            elif word in list_of_tp_indicators:
+                val = value
+                i = 'tp'
+                #print(i)
+                while val < len(list_of_words):
+                    word = list_of_words[val]
+                    try:
+                        float(word)
+                        #print(word)
+                        dict_of_values[i] = word
+                        break
+                    except ValueError:
+                        None
+                    val += 1
+        if 'close' in list_of_words:
+            return id, 'close'
+        else:
+            return id, direction, dict_of_values
 
+
+
+#===============================================================================================#
+#---------------------------------- MAIN LOOP FUNCTION -----------------------------------------#
+#===============================================================================================#
 async def main(phone):
     await client.start()
     print("Client Created")
@@ -194,137 +234,23 @@ async def main(phone):
             await client.sign_in(phone, input('Enter the code: '))
         except SessionPasswordNeededError:
             await client.sign_in(password=input('Password: '))
-
     me = await client.get_me()
-
-
-#===============================================================================================#
-#------------------------------------ TELEGRAM FUNCTIONS ---------------------------------------#
-#===============================================================================================#
-
-    List_of_pairs = ['audcad', 'audchf', 'audjpy', 'audnzd', 'audusd', 'cadchf', 'cadjpy', 'chfjpy', 'euraud', 'gbpnzd', 'eurgbp', 'nzdusd', 'nzdjpy', 'gbpusd', 'gbpjpy', 'eurjpy', 'usdcad', 'gbpcad', 'eurusd', 'xauusd', 'usdjpy', 'usdchf', 'eurnzd', 'gbpchf', 'usoil', 'eurcad', 'nzdcad', 'us30', 'nas100', 'gbpaud']
-    list_of_sl_indicators = ['sl',  'stop',  'stoploss']
-    list_of_tp_indicators = ['tp', 'take', 'takeprofit','tp1', 'tp2', 'tp3']
-    punctuation = ['\n', '#', ':', '£', '*', '\\', '📈', '📉', '/']
-    directions = ['buying', 'selling', 'sell', 'buy']
-
-    def Translator(message):
-        """ Parse telegram order messages """
-        words = ''.join(message)
-        words = words.lower()
-        words = words.replace('/', '')
-        
-        for item in punctuation:
-            words = words.replace(item, ' ')
-    
-
-        list_of_words = words.split(' ')
-
-        for item in list_of_words:
-            #print(item)
-            if item in List_of_pairs:
-                # Convert 'audjpy' to 'AUD_JPY'
-                new_pair = ""
-                counter = 0
-                for char in item:
-                    if counter != 3:
-                        new_pair += char.upper()
-                    else:
-                        new_pair += "_" + char.upper()
-                    counter += 1
-                id = new_pair
-        
-        dict_of_values = {}
-
-        for value in range(len(list_of_words)):
-            word = str(list_of_words[value])
-            val = value
-            #Checks to see if buy limit/sell limit and adds limit to dict
-            if word in directions:
-                direction = word[:3]
-                if 'limit' in list_of_words:
-                    
-                    while val < len(list_of_words):
-                        word = list_of_words[val]
-                        try:
-                            float(word)
-                            #print(word)
-                            dict_of_values['limit'] = word
-                            break
-                        except ValueError:
-                            None
-                    
-                        val += 1
-            #print(type(word))
-            
-            if word in list_of_sl_indicators:
-                
-                i = 'sl'
-                #print(i)
-
-                while val < len(list_of_words):
-                    word = list_of_words[val]
-                    try:
-                        float(word)
-                        #print(word)
-                        dict_of_values[i] = word
-                        break
-                    except ValueError:
-                        None
-                    
-                    val += 1
-                    
-            elif word in list_of_tp_indicators:
-                val = value
-                i = 'tp'
-                #print(i)
-                
-                while val < len(list_of_words):
-                    word = list_of_words[val]
-                    try:
-                        float(word)
-                        #print(word)
-                        dict_of_values[i] = word
-                        break
-                    except ValueError:
-                        None
-                    
-                    val += 1
-            
-        if 'close' in list_of_words:
-            return id, 'close'
-        else:
-            return id, direction, dict_of_values
-
     user_input_channel = '1314870937'
-
     if user_input_channel.isdigit():
         entity = PeerChannel(int(user_input_channel))
     else:
         entity = user_input_channel
-
     current_signal = None
-
-
-
-#===============================================================================================#
-#------------------------------------ SIGNAL DETECTING LOOP ------------------------------------#
-#===============================================================================================#
-
     while True:
         try:
-
             while True:
                 my_channel = await client.get_entity(entity)
                 newest_message = []
-
                 async for message in client.iter_messages(my_channel,limit=1):
                     newest_message.append(message.text)
-
                 #print(newest_message)
                 try:
                     signal_to_give = Translator(newest_message)
-                    
                     if signal_to_give != current_signal:
                         # Parse the signal into variables
                         current_signal = signal_to_give
@@ -342,26 +268,22 @@ async def main(phone):
                         # Stop loss
                         sl = signal_to_give[2]['sl']
                         print("Stop Loss = {}".format(sl))
-                        # Creating a market order -> create_market_order(instrument, units, takeProfit, stopLoss)
-                        # Test for buy or sell -> if sel then negative units used
+                        # Creating a market order - create_market_order(instrument, units, takeProfit, stopLoss)
+                        # Test for buy or sell - if 'sel' then negative units used
                         if order_type == 'sel':
                             create_market_order(instrument, -5000, tp, sl)
                         elif order_type =='buy':
                             create_market_order(instrument, 5000, tp, sl)
-                        #add order cancellation here !!!!!!!!!#
+                            #add order cancellation here !!!!!!!!!#
                         elif order_type == 'close':
                             None
                         else:
                             print("Error: Not a valid buy/sell order type")
-                            
-
                         # Create_trailing_stop_loss_order(order_tradeID, order_distance, order_timeInForce):
-
                         #list_trades()
                         #close_order("order_TradeID", "UNITS(use 'ALL' to fully close)")
                     else:
                         print('No new signals!')
-                
                 except UnboundLocalError:
                     print('Cannot read signal.')
                 except KeyError:
@@ -370,32 +292,25 @@ async def main(phone):
                     signal_to_give = Translator(newest_message)
                     if signal_to_give[1] == 'close':
                         None
-                        #Isacc add more close stuff here !!!!!!
+                        #Isaac add more close stuff here !!!!!!
                     else:
                         print('Cannot read signal')
-                
-                    
                 #print(signal_to_give)
-
-                #call to make trade
                 time.sleep(30)
         except errors.FloodWaitError as e:
             print('Sleeping')
             time.sleep(90)
+#===============================================================================================#
+#------------------------------------ CALLING FUNCTIONS ----------------------------------------#
+#===============================================================================================#
+# with client:
+#     client.loop.run_until_complete(main(phone))
 
-
-with client:
-    client.loop.run_until_complete(main(phone))
-
-### CALLING FUNCTIONS ###
+### TRADING FUNCTIONS ###
 #create_market_order("AUD_CAD", 100, 0.95, 0.90)
 #list_trades()
 #create_trailing_stop_loss_order("21", 0.02, "GTC")
 #close_order("40", "ALL")
 
-#To do list 
 
-# - check all orders to avoid running multiple of same order
-# - add trailing stop loss
-# - close trades
-# - add buy limit and stop limit orders
+
