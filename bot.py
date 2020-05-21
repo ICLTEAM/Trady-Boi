@@ -10,9 +10,9 @@
 #===============================================================================================#
 #--------------------------------------- TODO LIST ---------------------------------------------#
 #===============================================================================================#
-# TODO check all orders to avoid running multiple of same order
+# DONE check all orders to avoid running multiple of same order
+# DONE close trades
 # TODO add trailing stop loss
-# TODO close trades
 # TODO add buy limit and stop limit orders
 #===============================================================================================#
 #------------------------------------- MODULE IMPORTS ------------------------------------------#
@@ -127,7 +127,7 @@ def check_for_existing_trades(order_instrument, order_units):
         units = trade[1]
         instrument = trade[2]
         if units == order_units and instrument == order_instrument:
-            print("{} Trade with {} units already exists!".format(instrument, units))
+            #print("{} Trade with {} units already exists!".format(instrument, units))
             trade_exists = True
     return trade_exists
         
@@ -319,7 +319,6 @@ async def main(phone):
                         #Isaac do stuff here to make trade.
                         instrument = signal_to_give[0]
                         print("Instrument = {}".format(instrument))
-
                         order_type = signal_to_give[1]
                         print("Buy/Sell = {}".format(order_type))
                         # Take Profit
@@ -333,24 +332,27 @@ async def main(phone):
                         # Test for buy or sell - if 'sel' then negative units used
                         units = 1000
                         if order_type == 'sel':
-                            sell_units = -1 * units
-                            create_market_order(instrument, sell_units, tp, sl)
+                            sell_units = -1 * units # To sell units must be negative
+                            if check_for_existing_trades(instrument, sell_units) == False: 
+                                create_market_order(instrument, sell_units, tp, sl)
+                            else:
+                                print("{} Trade with {} units already exists!".format(instrument, sell_units))
                         elif order_type =='buy':
                             buy_units = units 
-                            create_market_order(instrument, buy_units, tp, sl)
+                            if check_for_existing_trades(instrument, buy_units) == False: 
+                                create_market_order(instrument, sell_units, tp, sl)
+                            else:
+                                print("{} Trade with {} units already exists!".format(instrument, buy_units))
                         elif order_type == 'close':
                             close_order(tradeID, 'ALL')
                         else:
                             print("Error: Not a valid buy/sell order type")
-                        # Create_trailing_stop_loss_order(order_tradeID, order_distance, order_timeInForce):
-                        #get_trades()
-                        #close_order("order_TradeID", "UNITS(use 'ALL' to fully close)")
                     else:
                         print('No new signals!')
                 except UnboundLocalError:
                     print('UnboundLocalError: Cannot read signal.')
                 except KeyError:
-                    print('Key Error: Cannot read signal')
+                    print('KeyError: Cannot read signal')
                 except IndexError:
                     signal_to_give = Translator(newest_message)
                     if signal_to_give[1] == 'close':
