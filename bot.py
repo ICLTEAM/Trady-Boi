@@ -66,11 +66,71 @@ except NameError:
 #===============================================================================================#
 #------------------------------------ TRADING FUNCTIONS ----------------------------------------#
 #===============================================================================================#
-def list_trades():
+def get_trades():
+    """ Returns a json of all accounts trades """ 
     r = trades.TradesList(accountID)
-    print("REQUEST:{}".format(r))
+    #print("REQUEST:{}".format(r))
     rv = api.request(r)
-    print("RESPONSE:\n{}".format(json.dumps(rv, indent=2)))
+    #print("RESPONSE:\n{}".format(json.dumps(rv, indent=2)))
+    return rv
+
+def get_trade_info_by_instrument(order_instrument):
+    """ Get tradeID and unit information on a trade with the given currency pair/instrument""" 
+    trade_info = {}
+    trade_response = get_trades()
+    all_trades = trade_response['trades']
+    for trade in all_trades:
+        tradeID = trade['id']
+        instrument = trade['instrument']
+        current_units = trade['currentUnits']
+        #print("tradeID:\n{}".format(tradeID))#.format(json.dumps(trade, indent=2)))
+        #print("Instrument:\n{}".format(instrument))
+        #print("Current units:\n{}".format(current_units))
+        if instrument == order_instrument:
+            trade_info['tradeID'] = tradeID
+            trade_info['units'] = current_units
+
+    if bool(trade_info) == False:
+        # Checking if the trade_info dictionary is empty
+        print("No open {} trades found!".format(order_instrument))
+        return False
+    else:
+        return trade_info
+
+def get_all_open_trades():
+    """ 
+    Get tradeID, unit information and instrument for all currently open trades.
+    Stores each trade in nested lists, of the form ['tradeID', 'units', 'instrument']
+    """
+    all_open_trades = []
+    trade_response = get_trades()
+    all_trades = trade_response['trades']
+    for trade in all_trades:
+        trade_list = []
+        tradeID = trade['id']
+        trade_list.append(tradeID)
+        current_units = trade['currentUnits']
+        trade_list.append(current_units)
+        instrument = trade['instrument']
+        trade_list.append(instrument)
+        all_open_trades.append(trade_list)
+    return all_open_trades
+
+def check_for_existing_trades(order_instrument, order_units):
+    """ 
+    Check for an existing trade with the same instrument and units.
+    Returns True if trade exists with same instrument and units and false if matching trade does not exist.
+    """
+    trade_exists = False
+    open_trades = get_all_open_trades()
+    for trade in open_trades:
+        units = trade[1]
+        instrument = trade[2]
+        if units == order_units and instrument == order_instrument:
+            print("{} Trade with {} units already exists!".format(instrument, units))
+            trade_exists = True
+    return trade_exists
+        
 
 def create_market_order(order_instrument, order_units, order_take_profit, order_stop_loss):
     """ 
@@ -269,32 +329,35 @@ async def main(phone):
                         sl = signal_to_give[2]['sl']
                         print("Stop Loss = {}".format(sl))
                         # Creating a market order - create_market_order(instrument, units, takeProfit, stopLoss)
+                        tradeID = get_trade_info_by_instrument(instrument)['tradeID']
                         # Test for buy or sell - if 'sel' then negative units used
+                        units = 1000
                         if order_type == 'sel':
-                            create_market_order(instrument, -5000, tp, sl)
+                            sell_units = -1 * units
+                            create_market_order(instrument, sell_units, tp, sl)
                         elif order_type =='buy':
-                            create_market_order(instrument, 5000, tp, sl)
-                            #add order cancellation here !!!!!!!!!#
+                            buy_units = units 
+                            create_market_order(instrument, buy_units, tp, sl)
                         elif order_type == 'close':
-                            None
+                            close_order(tradeID, 'ALL')
                         else:
                             print("Error: Not a valid buy/sell order type")
                         # Create_trailing_stop_loss_order(order_tradeID, order_distance, order_timeInForce):
-                        #list_trades()
+                        #get_trades()
                         #close_order("order_TradeID", "UNITS(use 'ALL' to fully close)")
                     else:
                         print('No new signals!')
                 except UnboundLocalError:
-                    print('Cannot read signal.')
+                    print('UnboundLocalError: Cannot read signal.')
                 except KeyError:
-                    print('Cannot read signal')
+                    print('Key Error: Cannot read signal')
                 except IndexError:
                     signal_to_give = Translator(newest_message)
                     if signal_to_give[1] == 'close':
                         None
                         #Isaac add more close stuff here !!!!!!
                     else:
-                        print('Cannot read signal')
+                        print('IndexError: Cannot read signal')
                 #print(signal_to_give)
                 time.sleep(30)
         except errors.FloodWaitError as e:
@@ -303,14 +366,16 @@ async def main(phone):
 #===============================================================================================#
 #------------------------------------ CALLING FUNCTIONS ----------------------------------------#
 #===============================================================================================#
-# with client:
-#     client.loop.run_until_complete(main(phone))
+with client:
+    client.loop.run_until_complete(main(phone))
 
 ### TRADING FUNCTIONS ###
-#create_market_order("AUD_CAD", 100, 0.95, 0.90)
-#list_trades()
+#create_market_order("AUD_CHF", 69, 0.65, 0.60)
+#get_trades()
+#print(get_trade_info_by_instrument("AUD_CAD")['tradeID'])
+#print(get_all_open_trades())
+#print(check_for_existing_trades('AUD_CAD', '69'))
 #create_trailing_stop_loss_order("21", 0.02, "GTC")
 #close_order("40", "ALL")
-
 
 
