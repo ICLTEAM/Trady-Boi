@@ -12,9 +12,10 @@
 #===============================================================================================#
 # DONE check all orders to avoid running multiple of same order
 # DONE close trades
-# TODO add trailing stop loss - Question: How do I know when to add a stop loss to the order?
 # DONE add buy limit order
 # DONE add stop limit order
+# TODO add trailing stop loss - Question: How do I know when to add a stop loss to the order? The trailing
+# loss function itself is already created and working
 #===============================================================================================#
 #------------------------------------- MODULE IMPORTS ------------------------------------------#
 #===============================================================================================#
@@ -76,7 +77,7 @@ def get_trades():
     #print("RESPONSE:\n{}".format(json.dumps(rv, indent=2)))
     return rv
 
-def get_trade_info_by_instrument(order_instrument):
+def get_trade_by_instrument(order_instrument):
     """ Get tradeID and unit information on a trade with the given currency pair/instrument""" 
     trade_info = {}
     trade_response = get_trades()
@@ -91,6 +92,25 @@ def get_trade_info_by_instrument(order_instrument):
         if instrument == order_instrument:
             trade_info['tradeID'] = tradeID
             trade_info['units'] = current_units
+
+    if bool(trade_info) == False:
+        # Checking if the trade_info dictionary is empty
+        print("No open {} trades found!".format(order_instrument))
+        return False
+    else:
+        return trade_info
+
+def get_trade_by_id(tradeID):
+    """ 
+    Return trade info json by ID.
+    Returns False if no trade exists with the given tradeID
+    """
+    trade_response = get_trades()
+    all_trades = trade_response['trades']
+    for trade in all_trades:
+        if trade["id"] == str(tradeID): 
+            return trade
+    return False
 
     if bool(trade_info) == False:
         # Checking if the trade_info dictionary is empty
@@ -200,6 +220,16 @@ def create_stop_order(order_instrument, order_units, order_take_profit, order_st
         print(r.status_code, err)
     else:
         print(json.dumps(rv, indent=2))
+
+def find_trailing_distance(tradeID):
+    """ Return the difference between an orders takeProfit and StopLoss."""
+    try:
+        tp = float(get_trade_by_id(tradeID)["takeProfitOrder"]["price"])
+        sl = float(get_trade_by_id(tradeID)["stopLossOrder"]["price"])
+        distance = abs(tp - sl)
+        return distance
+    except TypeError:
+        return False
 
 def create_trailing_stop_loss_order(order_tradeID, order_distance, order_timeInForce):
     """ Create a trailing stop loss order """
@@ -369,7 +399,7 @@ async def main(phone):
                         # Stop loss
                         sl = signal_to_give[2]['sl']
                         # Unique tradeID
-                        tradeID = get_trade_info_by_instrument(instrument)['tradeID']
+                        tradeID = get_trade_by_instrument(instrument)['tradeID']
                         # Number of units 
                         units = 1000
                         # Test for buy or sell - if 'sel' then negative units used
@@ -419,12 +449,14 @@ async def main(phone):
 
 ### TESTING FUNCTIONS ###
 #create_market_order("AUD_CHF", 69, 0.65, 0.60)
-#get_trades()
-#print(get_trade_info_by_instrument("AUD_CAD")['tradeID'])
+#print(get_trade_by_instrument("AUD_CAD")['tradeID'])
 #print(get_all_open_trades())
 #print(check_for_existing_trades('AUD_CAD', '69'))
 #create_trailing_stop_loss_order("21", 0.02, "GTC")
 #close_order("40", "ALL")
 #create_limit_order('AUD_CAD', 77, 0.93, 0.90, '0.91')
 #create_stop_order('AUD_CAD', 28, 0.93, 0.90, 0.91)
-
+#test = get_trades()
+#print("RESPONSE:\n{}".format(json.dumps(test, indent=2)))
+#print(find_trailing_distance("143"))
+#print(get_trade_by_id(156))
