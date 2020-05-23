@@ -16,7 +16,7 @@
 # DONE Add stop limit order
 # DONE Add trailing stop loss 
 # TODO Test telegram method
-# TODO Get candlestick data
+# DONE Get candlestick data
 # TODO Try out different trading methods, using the incoming candlestick data
 # TODO Eventually create a machine learning/Neural network trading algorithm
 #===============================================================================================#
@@ -32,6 +32,7 @@ from oandapyV20.contrib.requests import TakeProfitDetails, StopLossDetails
 from oandapyV20.contrib.requests import TrailingStopLossOrderRequest
 from oandapyV20.contrib.requests import TradeCloseRequest
 import oandapyV20.endpoints.orders as orders
+import oandapyV20.endpoints.instruments as instruments
 import oandapyV20
 import configparser
 import asyncio
@@ -55,8 +56,8 @@ directions = ['buying', 'selling', 'sell', 'buy']
 #===============================================================================================#
 #------------------------------------ TRADING API SETUP ----------------------------------------#
 #===============================================================================================#
-oscar_token = "9d6e6cd1c372515f82dfda2de4b7540f-cd6cafe8b8da1ba8a83d3964e05252e1"
-#isaac_token = "98687799930ef52671ed0b5cedfd5a94-b7c6913e9ed847fa80f17863b502a698"
+#oscar_token = "9d6e6cd1c372515f82dfda2de4b7540f-cd6cafe8b8da1ba8a83d3964e05252e1"
+isaac_token = "98687799930ef52671ed0b5cedfd5a94-b7c6913e9ed847fa80f17863b502a698"
 #number = +44 7375 066642
 # Creating the API Object
 try:
@@ -72,6 +73,7 @@ except NameError:
 #===============================================================================================#
 #------------------------------------ TRADING FUNCTIONS ----------------------------------------#
 #===============================================================================================#
+#------------------------------------## GET FUNCTIONS ##----------------------------------------#
 def get_trades():
     """ Returns a json of all accounts trades """ 
     r = trades.TradesList(accountID)
@@ -155,8 +157,38 @@ def check_for_existing_trades(order_instrument, order_units):
             #print("{} Trade with {} units already exists!".format(instrument, units))
             trade_exists = True
     return trade_exists
-        
 
+def find_trailing_distance(tradeID):
+    """ Return the difference between an orders takeProfit and StopLoss."""
+    try:
+        tp = float(get_trade_by_id(tradeID)["takeProfitOrder"]["price"])
+        sl = float(get_trade_by_id(tradeID)["stopLossOrder"]["price"])
+        distance = abs(tp - sl)
+        return distance
+    except TypeError:
+        return False
+
+def get_candlestick_data(order_instrument, order_granularity, time_from, time_to):
+    """ 
+    Get candlestick data for an instrument, with a specified granularity (time per candle),
+    from the start to end time.
+    Granularity Note: S5 = 5 second candlesticks, M4 = 4 minute candlesticks, H2 = 2 hour candlesticks e.t.c
+    More info at: https://developer.oanda.com/rest-live-v20/instrument-df/#CandlestickGranularity
+    Time Note: Either uses the "RFC 3339" representation or the "Unix representation"
+    E.g If today is 5th May 2020 and time is 18:05 BST then the RFC time: 
+    "2020-05-23T17:05:30.457847836Z" (UTC is 1hr behind BST)
+    """
+    options = {
+        "granularity" : order_granularity,
+        "from" : time_from,
+        "to" : time_to}
+    r = instruments.InstrumentsCandles(instrument=order_instrument, params=options)
+    api.request(r)
+    response = r.response
+    print("RESPONSE:\n{}".format(json.dumps(response, indent=2)))
+    return response
+
+#------------------------------------## PUT FUNCTIONS ##----------------------------------------#
 def create_market_order(order_instrument, order_units, order_take_profit, order_stop_loss):
     """ 
     Create a market order.
@@ -168,7 +200,6 @@ def create_market_order(order_instrument, order_units, order_take_profit, order_
         units = order_units,
         takeProfitOnFill=TakeProfitDetails(price=order_take_profit).data,
         stopLossOnFill=StopLossDetails(price=order_stop_loss).data)
-    
     # create the OrderCreate request
     r = orders.OrderCreate(accountID, data=ordr.data)
     try:
@@ -223,16 +254,6 @@ def create_stop_order(order_instrument, order_units, order_take_profit, order_st
         print(r.status_code, err)
     else:
         print(json.dumps(rv, indent=2))
-
-def find_trailing_distance(tradeID):
-    """ Return the difference between an orders takeProfit and StopLoss."""
-    try:
-        tp = float(get_trade_by_id(tradeID)["takeProfitOrder"]["price"])
-        sl = float(get_trade_by_id(tradeID)["stopLossOrder"]["price"])
-        distance = abs(tp - sl)
-        return distance
-    except TypeError:
-        return False
 
 def create_trailing_stop_loss_order(order_tradeID, order_distance, order_timeInForce):
     """ Create a trailing stop loss order """
@@ -448,13 +469,13 @@ async def main(phone):
 #===============================================================================================#
 #------------------------------------ CALLING FUNCTIONS ----------------------------------------#
 #===============================================================================================#
-with client:
-    client.loop.run_until_complete(main(phone))
+# with client:
+#     client.loop.run_until_complete(main(phone))
 
 ### TESTING FUNCTIONS ###
-#create_market_order("AUD_CHF", 69, 0.65, 0.60)
+#create_market_order("AUD_CHF", 77, 0.65, 0.60)
 #print(get_trade_by_instrument("AUD_CAD")['tradeID'])
-print(get_all_open_trades())
+#print(get_all_open_trades())
 #print(check_for_existing_trades('AUD_CAD', '69'))
 #create_trailing_stop_loss_order("21", 0.02, "GTC")
 #close_order("40", "ALL")
@@ -464,3 +485,4 @@ print(get_all_open_trades())
 #print("RESPONSE:\n{}".format(json.dumps(test, indent=2)))
 #print(find_trailing_distance("143"))
 #print(get_trade_by_id(156))
+get_candlestick_data("AUD_CHF", "M5", "2020-05-20T16:05:00.00Z", "2020-05-20T17:05:00.00Z") 
