@@ -19,6 +19,7 @@
 # DONE Get candlestick data
 # TODO Try out different trading methods, using the incoming candlestick data
 # TODO Eventually create a machine learning/Neural network trading algorithm
+# TODO OSCAR YOU BROKE IT BOI LINE 346 in Translator function extras.append(word) -> You can't append to a string
 #===============================================================================================#
 #------------------------------------- MODULE IMPORTS ------------------------------------------#
 #===============================================================================================#
@@ -33,6 +34,8 @@ from oandapyV20.contrib.requests import TrailingStopLossOrderRequest
 from oandapyV20.contrib.requests import TradeCloseRequest
 import oandapyV20.endpoints.orders as orders
 import oandapyV20.endpoints.instruments as instruments
+from oandapyV20.exceptions import V20Error, StreamTerminated
+from oandapyV20.endpoints.pricing import PricingStream
 import oandapyV20
 import configparser
 import asyncio
@@ -56,8 +59,8 @@ directions = ['buying', 'selling', 'sell', 'buy']
 #===============================================================================================#
 #------------------------------------ TRADING API SETUP ----------------------------------------#
 #===============================================================================================#
-oscar_token = "9d6e6cd1c372515f82dfda2de4b7540f-cd6cafe8b8da1ba8a83d3964e05252e1"
-#isaac_token = "98687799930ef52671ed0b5cedfd5a94-b7c6913e9ed847fa80f17863b502a698"
+#oscar_token = "9d6e6cd1c372515f82dfda2de4b7540f-cd6cafe8b8da1ba8a83d3964e05252e1"
+isaac_token = "98687799930ef52671ed0b5cedfd5a94-b7c6913e9ed847fa80f17863b502a698"
 #number = +44 7375 066642
 # Creating the API Object
 try:
@@ -381,7 +384,7 @@ def Translator(message):
     else:
         return id, direction, dict_of_values, extras
 #===============================================================================================#
-#---------------------------------- MAIN LOOP FUNCTION -----------------------------------------#
+#------------------------------ MAIN TELEGRAM LOOP FUNCTION ------------------------------------#
 #===============================================================================================#
 async def main(phone):
     await client.start()
@@ -496,17 +499,40 @@ async def main(phone):
             print('Sleeping')
             time.sleep(90)
 #===============================================================================================#
+#------------------------------ MAIN STREAMING LOOP FUNCTION ------------------------------------#
+#===============================================================================================#
+def stream_pricing(order_instrument):
+    """
+    Stream price data for given instrument.
+    Note: Gives a "HEARTBEAT" to maintain an active HTTP connection, 
+    i.e if no new pricing info is available.
+    """
+    maxrec = 100 # not exactly sure what this value means 
+    s = PricingStream(accountID=accountID, params={"instruments":order_instrument})
+    try:
+        n = 0
+        for R in api.request(s):
+            print(json.dumps(R, indent=2))
+            n += 1
+            if n > maxrec:
+                s.terminate("maxrecs received: {}".format(maxrec))
+    except V20Error as e:
+        print("Error: {}".format(e))
+#===============================================================================================#
 #------------------------------------ CALLING FUNCTIONS ----------------------------------------#
 #===============================================================================================#
 #with client:
     #client.loop.run_until_complete(main(phone))
 
+stream_pricing("EUR_JPY")
+
+    
 ### TESTING FUNCTIONS ###
-print(Translator('buy limit audjpy @ 1.556 tp 1.77 sl 1.99'))
+#print(Translator('buy limit audjpy @ 1.556 tp 1.77 sl 1.99'))
 #create_market_order("AUD_CHF", 77, 0.65, 0.60)
 #print(get_trade_by_instrument("AUD_JPY")['tradeID'])
 #print(get_all_open_trades())
-print(check_for_existing_trades('AUD_JPY', -5000))
+#print(check_for_existing_trades('AUD_JPY', -5000))
 #create_trailing_stop_loss_order("21", 0.02, "GTC")
 #close_order("40", "ALL")
 #create_limit_order('AUD_CAD', 77, 0.93, 0.90, '0.91')
