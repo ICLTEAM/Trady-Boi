@@ -153,7 +153,7 @@ def check_for_existing_trades(order_instrument, order_units):
     for trade in open_trades:
         units = trade[1]
         instrument = trade[2]
-        if units == order_units and instrument == order_instrument:
+        if units == str(order_units) and instrument == order_instrument:
             #print("{} Trade with {} units already exists!".format(instrument, units))
             trade_exists = True
     return trade_exists
@@ -339,10 +339,11 @@ def Translator(message):
             if 'limit' in list_of_words:
                 while val < len(list_of_words):
                     word = list_of_words[val]
+                    extras = 'limit'
                     try:
                         float(word)
                         #print(word)
-                        dict_of_values['limit'] = word
+                        extras.append(word)
                         break
                     except ValueError:
                         None
@@ -375,10 +376,10 @@ def Translator(message):
                 except ValueError:
                     None
                 val += 1
-    if 'close' in list_of_words:
+    if 'close' in list_of_words or 'closing in list_of_words':
         return id, 'close'
     else:
-        return id, direction, dict_of_values
+        return id, direction, dict_of_values, extras
 #===============================================================================================#
 #---------------------------------- MAIN LOOP FUNCTION -----------------------------------------#
 #===============================================================================================#
@@ -422,13 +423,15 @@ async def main(phone):
                         tp = signal_to_give[2]['tp'] 
                         # Stop loss
                         sl = signal_to_give[2]['sl']
+                        # Any extra details such as limits
+                        extras = signal_to_give[3]
+                        
                         # Number of units 
                         units = 5000 # Change units here!
                         # Test for buy or sell - if 'sel' then negative units used
                         if order_type == 'sel':
                             # To sell units must be negative
                             sell_units = -1 * units
-                            sell_units = str(sell_units)
                             #print(sell_units)
                             #print(instrument)
                             # Check if the trade already exists
@@ -444,6 +447,26 @@ async def main(phone):
                                 create_market_order(instrument, buy_units, tp, sl)
                             else:
                                 print("{} Trade with {} units already exists!".format(instrument, buy_units))
+                        elif extras[0] == 'limit' and order_type == 'sel':
+                            # To sell units must be negative
+                            sell_units = -1 * units
+                            #print(sell_units)
+                            #print(instrument)
+                            # Check if the trade already exists
+                            print(check_for_existing_trades(instrument, sell_units))
+                            if check_for_existing_trades(instrument, sell_units) == False: 
+                                # Creating a market order - create_market_order(instrument, units, takeProfit, stopLoss)
+                                create_limit_order(instrument, sell_units, tp, sl, extras[1])
+                            elif check_for_existing_trades(instrument, sell_units) == True:
+                                print("{} Trade with {} units already exists!".format(instrument, sell_units))
+                        elif extras[0] == 'limit' and order_type == 'buy':
+                            buy_units = units 
+                            if check_for_existing_trades(instrument, buy_units) == False: 
+                                create_limit_order(instrument, buy_units, tp, sl, extras[1])
+                            else:
+                                print("{} Trade with {} units already exists!".format(instrument, buy_units))
+
+
                         elif order_type == 'close':
                             # Get the trade ID of the trade to close using its instrument
                             print('Closing the trade {}'.format(instrument))
@@ -479,6 +502,7 @@ async def main(phone):
     #client.loop.run_until_complete(main(phone))
 
 ### TESTING FUNCTIONS ###
+print(Translator('buy limit audjpy @ 1.556 tp 1.77 sl 1.99'))
 #create_market_order("AUD_CHF", 77, 0.65, 0.60)
 #print(get_trade_by_instrument("AUD_JPY")['tradeID'])
 #print(get_all_open_trades())
