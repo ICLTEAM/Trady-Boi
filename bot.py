@@ -10,12 +10,15 @@
 #===============================================================================================#
 #--------------------------------------- TODO LIST ---------------------------------------------#
 #===============================================================================================#
-# DONE check all orders to avoid running multiple of same order
-# DONE close trades
-# DONE add buy limit order
-# DONE add stop limit order
-# TODO add trailing stop loss - Question: How do I know when to add a stop loss to the order? The trailing
-# loss function itself is already created and working
+# DONE Check all orders to avoid running multiple of same order
+# DONE Close trades
+# DONE Add buy limit order
+# DONE Add stop limit order
+# DONE Add trailing stop loss 
+# TODO Test telegram method
+# TODO Get candlestick data
+# TODO Try out different trading methods, using the incoming candlestick data
+# TODO Eventually create a machine learning/Neural network trading algorithm
 #===============================================================================================#
 #------------------------------------- MODULE IMPORTS ------------------------------------------#
 #===============================================================================================#
