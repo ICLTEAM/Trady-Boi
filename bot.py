@@ -439,12 +439,14 @@ async def main(phone):
                             if check_for_existing_trades(instrument, sell_units) == False: 
                                 # Creating a market order - create_market_order(instrument, units, takeProfit, stopLoss)
                                 create_market_order(instrument, sell_units, tp, sl)
+                                create_trailing_stop_loss_order(get_trade_by_instrument(instrument), 30, "GTC")
                             elif check_for_existing_trades(instrument, sell_units) == True:
                                 print("{} Trade with {} units already exists!".format(instrument, sell_units))
                         elif order_type =='buy':
                             buy_units = units 
                             if check_for_existing_trades(instrument, buy_units) == False: 
                                 create_market_order(instrument, buy_units, tp, sl)
+                                create_trailing_stop_loss_order(get_trade_by_instrument(instrument), 30, "GTC")
                             else:
                                 print("{} Trade with {} units already exists!".format(instrument, buy_units))
                         elif extras[0] == 'limit' and order_type == 'sel':
@@ -457,12 +459,14 @@ async def main(phone):
                             if check_for_existing_trades(instrument, sell_units) == False: 
                                 # Creating a market order - create_market_order(instrument, units, takeProfit, stopLoss)
                                 create_limit_order(instrument, sell_units, tp, sl, extras[1])
+                                create_trailing_stop_loss_order(get_trade_by_instrument(instrument), 30, "GTC")
                             elif check_for_existing_trades(instrument, sell_units) == True:
                                 print("{} Trade with {} units already exists!".format(instrument, sell_units))
                         elif extras[0] == 'limit' and order_type == 'buy':
                             buy_units = units 
                             if check_for_existing_trades(instrument, buy_units) == False: 
                                 create_limit_order(instrument, buy_units, tp, sl, extras[1])
+                                create_trailing_stop_loss_order(get_trade_by_instrument(instrument), 30, "GTC")
                             else:
                                 print("{} Trade with {} units already exists!".format(instrument, buy_units))
 
