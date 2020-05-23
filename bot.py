@@ -56,8 +56,8 @@ directions = ['buying', 'selling', 'sell', 'buy']
 #===============================================================================================#
 #------------------------------------ TRADING API SETUP ----------------------------------------#
 #===============================================================================================#
-#oscar_token = "9d6e6cd1c372515f82dfda2de4b7540f-cd6cafe8b8da1ba8a83d3964e05252e1"
-isaac_token = "98687799930ef52671ed0b5cedfd5a94-b7c6913e9ed847fa80f17863b502a698"
+oscar_token = "9d6e6cd1c372515f82dfda2de4b7540f-cd6cafe8b8da1ba8a83d3964e05252e1"
+#isaac_token = "98687799930ef52671ed0b5cedfd5a94-b7c6913e9ed847fa80f17863b502a698"
 #number = +44 7375 066642
 # Creating the API Object
 try:
@@ -423,16 +423,20 @@ async def main(phone):
                         # Stop loss
                         sl = signal_to_give[2]['sl']
                         # Number of units 
-                        units = 1000
+                        units = 5000 # Change units here!
                         # Test for buy or sell - if 'sel' then negative units used
                         if order_type == 'sel':
                             # To sell units must be negative
-                            sell_units = -1 * units 
+                            sell_units = -1 * units
+                            sell_units = str(sell_units)
+                            #print(sell_units)
+                            #print(instrument)
                             # Check if the trade already exists
+                            print(check_for_existing_trades(instrument, sell_units))
                             if check_for_existing_trades(instrument, sell_units) == False: 
                                 # Creating a market order - create_market_order(instrument, units, takeProfit, stopLoss)
                                 create_market_order(instrument, sell_units, tp, sl)
-                            else:
+                            elif check_for_existing_trades(instrument, sell_units) == True:
                                 print("{} Trade with {} units already exists!".format(instrument, sell_units))
                         elif order_type =='buy':
                             buy_units = units 
@@ -442,6 +446,7 @@ async def main(phone):
                                 print("{} Trade with {} units already exists!".format(instrument, buy_units))
                         elif order_type == 'close':
                             # Get the trade ID of the trade to close using its instrument
+                            print('Closing the trade {}'.format(instrument))
                             tradeID = get_trade_by_instrument(instrument)['tradeID']
                             # Close the order, using its tradeID
                             close_order(tradeID, 'ALL')
@@ -457,9 +462,10 @@ async def main(phone):
                 except IndexError:
                     signal_to_give = Translator(newest_message)
                     if signal_to_give[1] == 'close':
-                        None
-                        #Isaac add more close stuff here !!!!!!
-                        # Why do I need to close an order if we get an error? - Isaac 
+                        print('Closing the trade {}'.format(instrument))
+                        tradeID = get_trade_by_instrument(instrument)['tradeID']
+                        # Close the order, using its tradeID
+                        close_order(tradeID, 'ALL') 
                     else:
                         print('IndexError: Cannot read signal')
                 time.sleep(30)
@@ -469,14 +475,14 @@ async def main(phone):
 #===============================================================================================#
 #------------------------------------ CALLING FUNCTIONS ----------------------------------------#
 #===============================================================================================#
-# with client:
-#     client.loop.run_until_complete(main(phone))
+#with client:
+    #client.loop.run_until_complete(main(phone))
 
 ### TESTING FUNCTIONS ###
 #create_market_order("AUD_CHF", 77, 0.65, 0.60)
-#print(get_trade_by_instrument("AUD_CAD")['tradeID'])
+#print(get_trade_by_instrument("AUD_JPY")['tradeID'])
 #print(get_all_open_trades())
-#print(check_for_existing_trades('AUD_CAD', '69'))
+print(check_for_existing_trades('AUD_JPY', -5000))
 #create_trailing_stop_loss_order("21", 0.02, "GTC")
 #close_order("40", "ALL")
 #create_limit_order('AUD_CAD', 77, 0.93, 0.90, '0.91')
@@ -485,4 +491,4 @@ async def main(phone):
 #print("RESPONSE:\n{}".format(json.dumps(test, indent=2)))
 #print(find_trailing_distance("143"))
 #print(get_trade_by_id(156))
-get_candlestick_data("AUD_CHF", "M5", "2020-05-20T16:05:00.00Z", "2020-05-20T17:05:00.00Z") 
+#get_candlestick_data("AUD_CHF", "M5", "2020-05-20T16:05:00.00Z", "2020-05-20T17:05:00.00Z") 
