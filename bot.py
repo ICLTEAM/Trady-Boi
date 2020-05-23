@@ -52,8 +52,8 @@ directions = ['buying', 'selling', 'sell', 'buy']
 #===============================================================================================#
 #------------------------------------ TRADING API SETUP ----------------------------------------#
 #===============================================================================================#
-#oscar_token = "9d6e6cd1c372515f82dfda2de4b7540f-cd6cafe8b8da1ba8a83d3964e05252e1"
-isaac_token = "98687799930ef52671ed0b5cedfd5a94-b7c6913e9ed847fa80f17863b502a698"
+oscar_token = "9d6e6cd1c372515f82dfda2de4b7540f-cd6cafe8b8da1ba8a83d3964e05252e1"
+#isaac_token = "98687799930ef52671ed0b5cedfd5a94-b7c6913e9ed847fa80f17863b502a698"
 #number = +44 7375 066642
 # Creating the API Object
 try:
@@ -299,63 +299,62 @@ def Translator(message):
                 # Convert 'audjpy' to 'AUD_JPY'
                 new_pair = ""
                 counter = 0
-                for char in item:
-                    if counter != 3:
-                        new_pair += char.upper()
-                    else:
-                        new_pair += "_" + char.upper()
-                        counter += 1
-                        id = new_pair
+                new_pair += item[:3]
+                new_pair += '_'
+                new_pair += item[3:]
+                id = new_pair.upper()
+
         dict_of_values = {}
-        for value in range(len(list_of_words)):
-            word = str(list_of_words[value])
-            val = value
-            #Checks to see if buy limit/sell limit and adds limit to dict
-            if word in directions:
-                direction = word[:3]
-                if 'limit' in list_of_words:
-                    while val < len(list_of_words):
-                        word = list_of_words[val]
-                        try:
-                            float(word)
-                            #print(word)
-                            dict_of_values['limit'] = word
-                            break
-                        except ValueError:
-                            None
-                        val += 1
+
+    for value in range(len(list_of_words)):
+        word = str(list_of_words[value])
+        val = value
+        #Checks to see if buy limit/sell limit and adds limit to dict
+        if word in directions:
+            direction = word[:3]
+            if 'limit' in list_of_words:
+                while val < len(list_of_words):
+                    word = list_of_words[val]
+                    try:
+                        float(word)
+                        #print(word)
+                        dict_of_values['limit'] = word
+                        break
+                    except ValueError:
+                        None
+                    val += 1
                         #print(type(word))
-            if word in list_of_sl_indicators:
-                i = 'sl'
-                #print(i)
-                while val < len(list_of_words):
-                    word = list_of_words[val]
-                    try:
-                        float(word)
+        if word in list_of_sl_indicators:
+            i = 'sl'
+            #print(i)
+            while val < len(list_of_words):
+                word = list_of_words[val]
+                try:
+                    float(word)
                         #print(word)
-                        dict_of_values[i] = word
-                        break
-                    except ValueError:
-                        None
-                    val += 1
-            elif word in list_of_tp_indicators:
-                val = value
-                i = 'tp'
+                    dict_of_values[i] = word
+                    break
+                except ValueError:
+                    None
+                val += 1
+        elif word in list_of_tp_indicators:
+            val = value
+            i = 'tp'
                 #print(i)
-                while val < len(list_of_words):
-                    word = list_of_words[val]
-                    try:
-                        float(word)
+            while val < len(list_of_words):
+                word = list_of_words[val]
+                try:
+                    float(word)
                         #print(word)
-                        dict_of_values[i] = word
-                        break
-                    except ValueError:
-                        None
-                    val += 1
-        if 'close' in list_of_words:
-            return id, 'close'
-        else:
-            return id, direction, dict_of_values
+                    dict_of_values[i] = word
+                    break
+                except ValueError:
+                    None
+                val += 1
+    if 'close' in list_of_words:
+        return id, 'close'
+    else:
+        return id, direction, dict_of_values
 #===============================================================================================#
 #---------------------------------- MAIN LOOP FUNCTION -----------------------------------------#
 #===============================================================================================#
@@ -370,7 +369,7 @@ async def main(phone):
         except SessionPasswordNeededError:
             await client.sign_in(password=input('Password: '))
     me = await client.get_me()
-    user_input_channel = '1314870937'
+    user_input_channel = 'https://t.me/joinchat/AAAAAFE68OMuZqcIMIjbZQ'
     if user_input_channel.isdigit():
         entity = PeerChannel(int(user_input_channel))
     else:
@@ -385,6 +384,7 @@ async def main(phone):
                     newest_message.append(message.text)
                 try:
                     signal_to_give = Translator(newest_message)
+                    #print(signal_to_give)
                     if signal_to_give != current_signal:
                         # Parse the signal into variables
                         current_signal = signal_to_give
@@ -444,8 +444,8 @@ async def main(phone):
 #===============================================================================================#
 #------------------------------------ CALLING FUNCTIONS ----------------------------------------#
 #===============================================================================================#
-# with client:
-#     client.loop.run_until_complete(main(phone))
+with client:
+    client.loop.run_until_complete(main(phone))
 
 ### TESTING FUNCTIONS ###
 #create_market_order("AUD_CHF", 69, 0.65, 0.60)
