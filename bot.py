@@ -398,8 +398,6 @@ async def main(phone):
                         tp = signal_to_give[2]['tp'] 
                         # Stop loss
                         sl = signal_to_give[2]['sl']
-                        # Unique tradeID
-                        tradeID = get_trade_by_instrument(instrument)['tradeID']
                         # Number of units 
                         units = 1000
                         # Test for buy or sell - if 'sel' then negative units used
@@ -415,18 +413,21 @@ async def main(phone):
                         elif order_type =='buy':
                             buy_units = units 
                             if check_for_existing_trades(instrument, buy_units) == False: 
-                                create_market_order(instrument, sell_units, tp, sl)
+                                create_market_order(instrument, buy_units, tp, sl)
                             else:
                                 print("{} Trade with {} units already exists!".format(instrument, buy_units))
                         elif order_type == 'close':
+                            # Get the trade ID of the trade to close using its instrument
+                            tradeID = get_trade_by_instrument(instrument)['tradeID']
                             # Close the order, using its tradeID
                             close_order(tradeID, 'ALL')
                         else:
                             print("Error: Not a valid buy/sell order type")
                     else:
                         print('No new signals!')
-                except UnboundLocalError:
-                    print('UnboundLocalError: Cannot read signal.')
+                # Why do we want this exception?
+                #except UnboundLocalError:
+                    #print('UnboundLocalError: Cannot read signal.')
                 except KeyError:
                     print('KeyError: Cannot read signal')
                 except IndexError:
@@ -450,7 +451,7 @@ with client:
 ### TESTING FUNCTIONS ###
 #create_market_order("AUD_CHF", 69, 0.65, 0.60)
 #print(get_trade_by_instrument("AUD_CAD")['tradeID'])
-#print(get_all_open_trades())
+print(get_all_open_trades())
 #print(check_for_existing_trades('AUD_CAD', '69'))
 #create_trailing_stop_loss_order("21", 0.02, "GTC")
 #close_order("40", "ALL")
