@@ -349,7 +349,7 @@ def Translator(message):
         if word in directions:
             direction = word[:3]
             if 'limit' in list_of_words:
-                extras = 'limit'
+                extras = ['limit']
                 while val < len(list_of_words):
                     word = list_of_words[val]
                     
@@ -442,7 +442,7 @@ async def main(phone):
                         # Number of units 
                         units = 5000 # Change units here!
                         # Test for buy or sell - if 'sel' then negative units used
-                        if order_type == 'sel':
+                        if order_type == 'sel' and extras[0] != 'limit' :
                             # To sell units must be negative
                             sell_units = -1 * units
                             #print(sell_units)
@@ -454,7 +454,7 @@ async def main(phone):
                                 create_market_order(instrument, sell_units, tp, sl)
                             elif check_for_existing_trades(instrument, sell_units) == True:
                                 print("{} Trade with {} units already exists!".format(instrument, sell_units))
-                        elif order_type =='buy':
+                        elif order_type =='buy' and extras[0] != 'limit':
                             buy_units = units 
                             if check_for_existing_trades(instrument, buy_units) == False: 
                                 create_market_order(instrument, buy_units, tp, sl)
@@ -474,6 +474,7 @@ async def main(phone):
                                 print("{} Trade with {} units already exists!".format(instrument, sell_units))
                         elif extras[0] == 'limit' and order_type == 'buy':
                             buy_units = units 
+                            print('Creating limit order now!')
                             if check_for_existing_trades(instrument, buy_units) == False: 
                                 create_limit_order(instrument, buy_units, tp, sl, extras[1])
                             else:
