@@ -305,7 +305,7 @@ def close_order(order_tradeID, order_units):
 
 def find_and_place_trail(instrument_used, sl_price):
     current_price = get_current_ask_price(instrument_used)
-    distance_to_sl = abs(float(current_price) - float(sl_price))
+    distance_to_sl = abs(Decimal(current_price) - Decimal(sl_price))
     while distance_to_sl < 20:
         distance_to_sl = distance_to_sl * 10
     id_used = get_trade_by_instrument(instrument_used)['tradeID']
@@ -574,7 +574,7 @@ with client:
 
 #print_stream_pricing("AUD_CAD")
 #print(get_current_ask_price("AUD_CAD"))
-### TESTING FUNCTIONS ###
+### TESTING FUNCTIONS ##
 #print(Translator('buy limit audjpy @ 1.556 tp 1.77 sl 1.99'))
 #create_market_order("AUD_CHF", 77, 0.65, 0.60)
 #print(get_trade_by_instrument("AUD_JPY")['tradeID'])
