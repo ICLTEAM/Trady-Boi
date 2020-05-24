@@ -303,6 +303,16 @@ def close_order(order_tradeID, order_units):
     else:
         print(json.dumps(rv, indent=2))
 
+def find_and_place_trail(instrument_used, sl_price):
+    current_price = get_current_ask_price(instrument_used)
+    distance_to_sl = abs(float(current_price) - float(sl_price))
+    while distance_to_sl < 20:
+        distance_to_sl = distance_to_sl * 10
+        time.sleep(1)
+        print(distance_to_sl)
+        
+    print(distance_to_sl) 
+
 #===============================================================================================#
 #------------------------------------ TELEGRAM API SETUP ---------------------------------------#
 #===============================================================================================#
@@ -556,8 +566,8 @@ def get_current_ask_price(order_instrument):
         #===============================================================================================#
 #------------------------------------ CALLING FUNCTIONS ----------------------------------------#
 #===============================================================================================#
-with client:
-    client.loop.run_until_complete(main(phone))
+#with client:
+    #client.loop.run_until_complete(main(phone))
 
 #print_stream_pricing("AUD_CAD")
 #print(get_current_ask_price("AUD_CAD"))
@@ -576,3 +586,4 @@ with client:
 #print(find_trailing_distance("156"))
 #print(get_trade_by_id(156))
 #get_candlestick_data("AUD_CHF", "M5", "2020-05-20T16:05:00.00Z", "2020-05-20T17:05:00.00Z") 
+find_and_place_trail('EUR_NZD', '1.79420')
