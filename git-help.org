@@ -1,0 +1,18 @@
+#+TITLE:Git Help
+Useful git commands to use
+* Main workflow 
+** Create a branch
+  + git checkout -b MyBranch 
+** Add changes to staging area
+  + git add -A or git add . or git add * to add all changes
+  + git add fileName for a specific file
+** Commit changes to local branch
+  + git commit -m "My commit message"
+** Push changes to branch
+  + git push origin MyBranch
+  + Note: Don't push to master branch
+** Merging with master using a pull request
+*** Using github
+    + Go to main repo and click Pull requests tab 
+    + Click Crearte pull request, choosing the appropriate branches
+*** Using command line
