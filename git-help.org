@@ -9,7 +9,7 @@ Useful git commands to use
  5. Submit a pull request with the changes on github
  6. Merge the pull request
  7. If issues, merge locally from the command line and then push to master
- 8. Once merged delete the branch 
+ 8. Once merged delete the branch/pull again from master
  9. Repeat for every new feature you want to add.
 ** Create a branch
   + git checkout -b MyBranch 
@@ -38,3 +38,5 @@ Useful git commands to use
 ** Deleting the branch once pushed
    + Once a branch has been merged, delete it:
      git branch -d MyBranch
+   + If you don't delete the branch after merging and then stuff gets changed, you will
+     have merge conficts.
