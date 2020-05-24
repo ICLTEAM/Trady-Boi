@@ -1,6 +1,6 @@
 #+TITLE:Git Help
 #+STARTUP:latexpreview
-[![github logo](https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Ftse1.mm.bing.net%2Fth%3Fid%3DOIP.R2Wm7B7tg0qUgpHETTTJoAHaEN%26pid%3DApi&f=1)]
+[![github logo](https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Ftse1.mm.bing.net%2Fth%3Fid%3DOIP.R2Wm7B7tg0qUgpHETTTJoAHaEN%26pid%3DApi&f=1)](https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Ftse1.mm.bing.net%2Fth%3Fid%3DOIP.R2Wm7B7tg0qUgpHETTTJoAHaEN%26pid%3DApi&f=1)
 * Main workflow 
  The idea is to create a branch for each new feature you add, e.g you want to create a translator function:
  1. Create a new branch for the feature you want to add
