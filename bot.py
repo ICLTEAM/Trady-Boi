@@ -20,7 +20,6 @@
 # TODO Test telegram method
 # TODO Try out different trading methods, using the incoming candlestick data
 # TODO Eventually create a machine learning/Neural network trading algorithm
-# TODO OSCAR YOU BROKE IT BOI LINE 346 in Translator function extras.append(word) -> You can't append to a string
 #===============================================================================================#
 #------------------------------------- MODULE IMPORTS ------------------------------------------#
 #===============================================================================================#
