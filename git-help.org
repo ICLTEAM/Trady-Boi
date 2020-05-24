@@ -1,6 +1,16 @@
 #+TITLE:Git Help
 Useful git commands to use
 * Main workflow 
+ The idea is to create a branch for each new feature you add, e.g you want to create a translator function:
+ 1. Create a new branch for the feature you want to add
+ 2. Make changes on that branch
+ 3. Stage changes and commit to that branch
+ 4. Push changes to the branch on github
+ 5. Submit a pull request with the changes on github
+ 6. Merge the pull request
+ 7. If issues, merge locally from the command line and then push to master
+ 8. Once merged delete the branch 
+ 9. Repeat for every new feature you want to add.
 ** Create a branch
   + git checkout -b MyBranch 
 ** Add changes to staging area
@@ -14,5 +24,17 @@ Useful git commands to use
 ** Merging with master using a pull request
 *** Using github
     + Go to main repo and click Pull requests tab 
-    + Click Crearte pull request, choosing the appropriate branches
+    + Click Create pull request, choose compare MyBranch to master
+    + Then click Merge pull request
 *** Using command line
+**** Step 1: add changes to master
+     git fetch origin
+     git checkout -b MyBranch origin/MyBranch
+     git merge master
+**** Step 2: Merge the changes and update on GitHub.
+     git checkout master
+     git merge --no-ff isaacbranch
+     git push origin master
+** Deleting the branch once pushed
+   + Once a branch has been merged, delete it:
+     git branch -d MyBranch
