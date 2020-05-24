@@ -308,10 +308,9 @@ def find_and_place_trail(instrument_used, sl_price):
     distance_to_sl = abs(float(current_price) - float(sl_price))
     while distance_to_sl < 20:
         distance_to_sl = distance_to_sl * 10
-        time.sleep(1)
-        print(distance_to_sl)
-        
-    print(distance_to_sl) 
+    id_used = get_trade_by_instrument(instrument_used)['tradeID']
+    create_trailing_stop_loss_order(id_used, distance_to_sl, "GTC")
+
 
 #===============================================================================================#
 #------------------------------------ TELEGRAM API SETUP ---------------------------------------#
@@ -462,12 +461,14 @@ async def main(phone):
                             if check_for_existing_trades(instrument, sell_units) == False: 
                                 # Creating a market order - create_market_order(instrument, units, takeProfit, stopLoss)
                                 create_market_order(instrument, sell_units, tp, sl)
+                                find_and_place_trail(instrument, sl)
                             elif check_for_existing_trades(instrument, sell_units) == True:
                                 print("{} Trade with {} units already exists!".format(instrument, sell_units))
                         elif order_type =='buy' and extras[0] != 'limit':
                             buy_units = units 
                             if check_for_existing_trades(instrument, buy_units) == False: 
                                 create_market_order(instrument, buy_units, tp, sl)
+                                find_and_place_trail(instrument, sl)
                             else:
                                 print("{} Trade with {} units already exists!".format(instrument, buy_units))
                         elif extras[0] == 'limit' and order_type == 'sel':
@@ -480,6 +481,7 @@ async def main(phone):
                             if check_for_existing_trades(instrument, sell_units) == False: 
                                 # Creating a market order - create_market_order(instrument, units, takeProfit, stopLoss)
                                 create_limit_order(instrument, sell_units, tp, sl, extras[1])
+                                find_and_place_trail(instrument, sl)
                             elif check_for_existing_trades(instrument, sell_units) == True:
                                 print("{} Trade with {} units already exists!".format(instrument, sell_units))
                         elif extras[0] == 'limit' and order_type == 'buy':
@@ -487,6 +489,7 @@ async def main(phone):
                             print('Creating limit order now!')
                             if check_for_existing_trades(instrument, buy_units) == False: 
                                 create_limit_order(instrument, buy_units, tp, sl, extras[1])
+                                find_and_place_trail(instrument, sl)
                             else:
                                 print("{} Trade with {} units already exists!".format(instrument, buy_units))
 
@@ -566,8 +569,8 @@ def get_current_ask_price(order_instrument):
         #===============================================================================================#
 #------------------------------------ CALLING FUNCTIONS ----------------------------------------#
 #===============================================================================================#
-#with client:
-    #client.loop.run_until_complete(main(phone))
+with client:
+    client.loop.run_until_complete(main(phone))
 
 #print_stream_pricing("AUD_CAD")
 #print(get_current_ask_price("AUD_CAD"))
@@ -586,4 +589,4 @@ def get_current_ask_price(order_instrument):
 #print(find_trailing_distance("156"))
 #print(get_trade_by_id(156))
 #get_candlestick_data("AUD_CHF", "M5", "2020-05-20T16:05:00.00Z", "2020-05-20T17:05:00.00Z") 
-find_and_place_trail('EUR_NZD', '1.79420')
+#find_and_place_trail('EUR_NZD', '1.79420')
