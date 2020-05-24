@@ -1,5 +1,6 @@
 #+TITLE:Git Help
-Useful git commands to use:
+#+STARTUP:latexpreview
+![alt text](http://url/to/img.png)
 * Main workflow 
  The idea is to create a branch for each new feature you add, e.g you want to create a translator function:
  1. Create a new branch for the feature you want to add
@@ -40,4 +41,3 @@ Useful git commands to use:
      git branch -d MyBranch
    + If you don't delete the branch after merging and then stuff gets changed, you will
      have merge conficts.
-
