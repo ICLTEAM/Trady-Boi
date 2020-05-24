@@ -29,13 +29,13 @@
     + Then click Merge pull request
 *** Using command line
 **** Step 1: First get changes from master
-     git fetch origin
-     git checkout -b MyBranch origin/MyBranch
-     git merge master
+    + git fetch origin
+    + git checkout -b MyBranch origin/MyBranch
+    + git merge master
 **** Step 2: Merge the changes with master and then update on GitHub.
-     git checkout master
-     git merge --no-ff isaacbranch
-     git push origin master
+    + git checkout master
+    + git merge --no-ff isaacbranch
+    + git push origin master
 ** Deleting the branch once pushed
    + Once a branch has been merged, delete it:
      git branch -d MyBranch
