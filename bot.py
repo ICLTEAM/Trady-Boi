@@ -61,8 +61,8 @@ directions = ['buying', 'selling', 'sell', 'buy']
 #===============================================================================================#
 #------------------------------------ TRADING API SETUP ----------------------------------------#
 #===============================================================================================#
-#oscar_token = "9d6e6cd1c372515f82dfda2de4b7540f-cd6cafe8b8da1ba8a83d3964e05252e1"
-isaac_token = "98687799930ef52671ed0b5cedfd5a94-b7c6913e9ed847fa80f17863b502a698"
+oscar_token = "9d6e6cd1c372515f82dfda2de4b7540f-cd6cafe8b8da1ba8a83d3964e05252e1"
+#isaac_token = "98687799930ef52671ed0b5cedfd5a94-b7c6913e9ed847fa80f17863b502a698"
 #number = +44 7375 066642
 # Creating the API Object
 try:
@@ -339,7 +339,8 @@ def Translator(message):
                 new_pair += item[3:]
                 id = new_pair.upper()
 
-        dict_of_values = {}
+    dict_of_values = {}
+    extras = None
 
     for value in range(len(list_of_words)):
         word = str(list_of_words[value])
@@ -348,17 +349,18 @@ def Translator(message):
         if word in directions:
             direction = word[:3]
             if 'limit' in list_of_words:
+                extras = 'limit'
                 while val < len(list_of_words):
                     word = list_of_words[val]
-                    extras = 'limit'
+                    
                     try:
-                        Decimal(word)
+                        float(word)
                         #print(word)
                         extras.append(word)
                         break
                     except ValueError:
                         None
-                    val += 1
+                        val += 1
                         #print(type(word))
         if word in list_of_sl_indicators:
             i = 'sl'
@@ -366,13 +368,13 @@ def Translator(message):
             while val < len(list_of_words):
                 word = list_of_words[val]
                 try:
-                    Decimal(word)
+                    float(word)
                         #print(word)
                     dict_of_values[i] = word
                     break
                 except ValueError:
                     None
-                val += 1
+                    val += 1
         elif word in list_of_tp_indicators:
             val = value
             i = 'tp'
@@ -380,14 +382,14 @@ def Translator(message):
             while val < len(list_of_words):
                 word = list_of_words[val]
                 try:
-                    Decimal(word)
+                    float(word)
                         #print(word)
                     dict_of_values[i] = word
                     break
                 except ValueError:
                     None
-                val += 1
-    if 'close' in list_of_words or 'closing in list_of_words':
+                    val += 1
+    if 'close' in list_of_words or 'closing' in list_of_words:
         return id, 'close'
     else:
         return id, direction, dict_of_values, extras
@@ -553,8 +555,8 @@ def get_current_ask_price(order_instrument):
         #===============================================================================================#
 #------------------------------------ CALLING FUNCTIONS ----------------------------------------#
 #===============================================================================================#
-#with client:
-    #client.loop.run_until_complete(main(phone))
+with client:
+    client.loop.run_until_complete(main(phone))
 
 #print_stream_pricing("AUD_CAD")
 #print(get_current_ask_price("AUD_CAD"))
