@@ -38,6 +38,7 @@ import oandapyV20.endpoints.instruments as instruments
 from oandapyV20.exceptions import V20Error, StreamTerminated
 from oandapyV20.endpoints.pricing import PricingStream
 import oandapyV20
+from decimal import *
 import configparser
 import asyncio
 from datetime import date, datetime
@@ -163,11 +164,13 @@ def check_for_existing_trades(order_instrument, order_units):
     return trade_exists
 
 def find_trailing_distance(tradeID):
-    """ Return the difference between an orders takeProfit and StopLoss."""
+    """ Return the difference between an orders Current Price and Stop Loss."""
     try:
-        tp = float(get_trade_by_id(tradeID)["takeProfitOrder"]["price"])
-        sl = float(get_trade_by_id(tradeID)["stopLossOrder"]["price"])
-        distance = abs(tp - sl)
+        instrument = get_trade_by_id(tradeID)["instrument"]
+        #tp = Decimal(get_trade_by_id(tradeID)["takeProfitOrder"]["price"])
+        current_price = Decimal(get_current_ask_price(instrument))
+        stop_loss = Decimal(get_trade_by_id(tradeID)["stopLossOrder"]["price"])
+        distance = abs(current_price - stop_loss)
         return distance
     except TypeError:
         return False
@@ -239,7 +242,8 @@ def create_limit_order(order_instrument, order_units, order_take_profit, order_s
 def create_stop_order(order_instrument, order_units, order_take_profit, order_stop_loss, order_price):
     """ 
     Create a stop order.
-    A StopOrder is an order that is created with a price threshold, and will only be filled by a price that is equal to or worse 
+    A StopOrder is an order that is created with a price threshold, 
+    and will only be filled by a price that is equal to or worse 
     than the threshold.
     """
     # Create the order body
@@ -260,7 +264,10 @@ def create_stop_order(order_instrument, order_units, order_take_profit, order_st
         print(json.dumps(rv, indent=2))
 
 def create_trailing_stop_loss_order(order_tradeID, order_distance, order_timeInForce):
-    """ Create a trailing stop loss order """
+    """ 
+    Create a trailing stop loss order.
+    Note: this is used to modify a pre-existing order and not to make a new one.
+    """
     ordr = TrailingStopLossOrderRequest(
         # The ID of the Trade to close when the price threshold is breached.
         tradeID = order_tradeID,
@@ -345,7 +352,7 @@ def Translator(message):
                     word = list_of_words[val]
                     extras = 'limit'
                     try:
-                        float(word)
+                        Decimal(word)
                         #print(word)
                         extras.append(word)
                         break
@@ -359,7 +366,7 @@ def Translator(message):
             while val < len(list_of_words):
                 word = list_of_words[val]
                 try:
-                    float(word)
+                    Decimal(word)
                         #print(word)
                     dict_of_values[i] = word
                     break
@@ -373,7 +380,7 @@ def Translator(message):
             while val < len(list_of_words):
                 word = list_of_words[val]
                 try:
-                    float(word)
+                    Decimal(word)
                         #print(word)
                     dict_of_values[i] = word
                     break
@@ -500,9 +507,9 @@ async def main(phone):
             print('Sleeping')
             time.sleep(90)
 #===============================================================================================#
-#------------------------------ MAIN STREAMING LOOP FUNCTION ------------------------------------#
+#------------------------------ STREAMING FUNCTIONS ------------------------------------#
 #===============================================================================================#
-def stream_pricing(order_instrument):
+def print_stream_pricing(order_instrument):
     """
     Stream price data for given instrument.
     Note: Gives a "HEARTBEAT" to maintain an active HTTP connection, 
@@ -519,15 +526,38 @@ def stream_pricing(order_instrument):
                 s.terminate("maxrecs received: {}".format(maxrec))
     except V20Error as e:
         print("Error: {}".format(e))
-#===============================================================================================#
+
+def get_current_ask_price(order_instrument):
+    """
+    Return the current ask price for an instrument 
+    at the time the function is called
+    """
+    maxrec = 10 # Try to get the stream price data 10 times
+    n = 0
+    s = PricingStream(accountID=accountID, params={"instruments":order_instrument})
+    try:
+        for R in api.request(s):
+            n += 1
+            if n > maxrec:
+                s.terminate("maxrecs received: {}".format(maxrec))
+            if R["type"] == "PRICE":
+                #print(R["asks"][0]["price"])
+                ask_price = R["asks"][0]["price"]
+                return ask_price
+            else:
+                print(R)
+    except V20Error as e:
+        print("Error: {}".format(e))
+    # If we fail to get price data
+    return False
+        #===============================================================================================#
 #------------------------------------ CALLING FUNCTIONS ----------------------------------------#
 #===============================================================================================#
 #with client:
     #client.loop.run_until_complete(main(phone))
 
-stream_pricing("EUR_JPY")
-
-    
+#print_stream_pricing("AUD_CAD")
+#print(get_current_ask_price("AUD_CAD"))
 ### TESTING FUNCTIONS ###
 #print(Translator('buy limit audjpy @ 1.556 tp 1.77 sl 1.99'))
 #create_market_order("AUD_CHF", 77, 0.65, 0.60)
@@ -538,8 +568,8 @@ stream_pricing("EUR_JPY")
 #close_order("40", "ALL")
 #create_limit_order('AUD_CAD', 77, 0.93, 0.90, '0.91')
 #create_stop_order('AUD_CAD', 28, 0.93, 0.90, 0.91)
-#test = get_trades()
+#test = get_trade_by_id(156)["instrument"]
 #print("RESPONSE:\n{}".format(json.dumps(test, indent=2)))
-#print(find_trailing_distance("143"))
+#print(find_trailing_distance("156"))
 #print(get_trade_by_id(156))
 #get_candlestick_data("AUD_CHF", "M5", "2020-05-20T16:05:00.00Z", "2020-05-20T17:05:00.00Z") 
