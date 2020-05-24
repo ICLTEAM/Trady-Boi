@@ -27,11 +27,11 @@ Useful git commands to use:
     + Click Create pull request, choose compare MyBranch to master
     + Then click Merge pull request
 *** Using command line
-**** Step 1: add changes to master
+**** Step 1: First get changes from master
      git fetch origin
      git checkout -b MyBranch origin/MyBranch
      git merge master
-**** Step 2: Merge the changes and update on GitHub.
+**** Step 2: Merge the changes with master and then update on GitHub.
      git checkout master
      git merge --no-ff isaacbranch
      git push origin master
