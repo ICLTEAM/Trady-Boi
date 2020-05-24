@@ -21,6 +21,7 @@
 # TODO Test telegram method
 # TODO Try out different trading methods, using the incoming candlestick data
 # TODO Eventually create a machine learning/Neural network trading algorithm
+# TODO Get dolla
 #===============================================================================================#
 #------------------------------------- MODULE IMPORTS ------------------------------------------#
 #===============================================================================================#
