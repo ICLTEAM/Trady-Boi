@@ -28,7 +28,7 @@ deactivate () {
     fi
 
     unset VIRTUAL_ENV
-    if [ ! "${1:-}" = "nondestructive" ] ; then
+    if [ ! "$1" = "nondestructive" ] ; then
     # Self destruct!
         unset -f deactivate
     fi
@@ -37,7 +37,7 @@ deactivate () {
 # unset irrelevant variables
 deactivate nondestructive
 
-VIRTUAL_ENV="/home/isaac/Projects/Python/Trady-Boi/env"
+VIRTUAL_ENV="/home/viba/Python/Trady-Boi/env"
 export VIRTUAL_ENV
 
 _OLD_VIRTUAL_PATH="$PATH"
