@@ -64,6 +64,7 @@ directions = ['buying', 'selling', 'sell', 'buy']
 #===============================================================================================#
 oscar_token = "9d6e6cd1c372515f82dfda2de4b7540f-cd6cafe8b8da1ba8a83d3964e05252e1"
 #isaac_token = "98687799930ef52671ed0b5cedfd5a94-b7c6913e9ed847fa80f17863b502a698"
+#viba_token = " d3de061d22827e55b900c4e97c7eec67-145b49c2faefee623431745456324760"
 #number = +44 7375 066642
 # Creating the API Object
 try:
