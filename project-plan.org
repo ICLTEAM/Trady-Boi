@@ -2,12 +2,12 @@
 #+DATE:18-05-2020
 * Project Structure Plan
 ** Todo List
-   - Oscar:
-      [] Test out telegram method //
-   - Viba:
-      [] Get familiar with github from the command line, using the branching method \\
-      [] Try and create some trades, play around with different functions \\
-      [] Research different algo trading methods.
+   - Oscar: 
+      [] Test out telegram method 
+   - Viba: 
+      [] Get familiar with github from the command line, using the branching method 
+      [] Try and create some trades, play around with different functions 
+      [] Research different algo trading methods. 
    - Issie: 
       [] Learn to use github with vscode 
       [] Get bot.py running on your computer (idk if you have to install the modules: six, oandapyV20, requests, telethon) 
