@@ -454,6 +454,8 @@ async def main(phone):
                         sl = signal_to_give[2]['sl']
                         # Any extra details such as limits
                         extras = signal_to_give[3]
+                        if extras[0] == None:
+                            extras = ["EMPTY", "EMPTY", "EMPTY", "EMPTY"]
                         
                         # Number of units 
                         units = 5000 # Change units here!
