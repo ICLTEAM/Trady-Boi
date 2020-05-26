@@ -3,10 +3,10 @@
 * Project Structure Plan
 ** Todo List
    - Oscar:
-      [] Test out telegram method
+      [] Test out telegram method //
    - Viba:
-      [] Get familiar with github from the command line, using the branching method
-      [] Try and create some trades, play around with different functions
+      [] Get familiar with github from the command line, using the branching method \\
+      [] Try and create some trades, play around with different functions \\
       [] Research different algo trading methods.
    - Issie: 
       [] Learn to use github with vscode 
