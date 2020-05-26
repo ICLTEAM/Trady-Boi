@@ -62,8 +62,8 @@ directions = ['buying', 'selling', 'sell', 'buy']
 #===============================================================================================#
 #------------------------------------ TRADING API SETUP ----------------------------------------#
 #===============================================================================================#
-oscar_token = "9d6e6cd1c372515f82dfda2de4b7540f-cd6cafe8b8da1ba8a83d3964e05252e1"
-#isaac_token = "98687799930ef52671ed0b5cedfd5a94-b7c6913e9ed847fa80f17863b502a698"
+#oscar_token = "9d6e6cd1c372515f82dfda2de4b7540f-cd6cafe8b8da1ba8a83d3964e05252e1"
+isaac_token = "98687799930ef52671ed0b5cedfd5a94-b7c6913e9ed847fa80f17863b502a698"
 #viba_token = " d3de061d22827e55b900c4e97c7eec67-145b49c2faefee623431745456324760" :)
 #number = +44 7375 066642
 # Creating the API Object
@@ -72,9 +72,14 @@ try:
     accountID = "101-004-14834458-001"  # Oscar Oanda AccountID
     print("Using Oscars' Account")
 except NameError:
-    api = API(access_token = isaac_token)
-    accountID = "101-004-14849550-001"   # Isaac Oanda AccountID
-    print("Using Isaacs' Account")
+    try:
+        api = API(access_token = isaac_token)
+        accountID = "101-004-14849550-001"  # Isaac Oanda AccountID
+        print("Using Oscars' Account")
+    except NameError:
+        api = API(access_token = viba_token)
+        accountID = "VIBA PLEASE INSERT YOUR OANDA ACCOUNT ID HERE"   # Viba Oanda AccountID
+        print("Using Isaacs' Account")
 # NOTE: For some reason if I switch to my account after already first running it with Oscars then
 # it still uses Oscars? To fix I have to relaunch my python shell
 #===============================================================================================#
