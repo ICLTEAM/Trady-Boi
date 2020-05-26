@@ -14,7 +14,7 @@
       - Create a practice trading account on https://www.oanda.com/uk-en/ and get API key and account ID 
          then add your details to bot.py. Place some trades and play around. 
       - Research different algo trading methods.
- *** Isaac: 
+*** Isaac: 
       - Create a project plan 
       - Research different trading algo methods. 
          
