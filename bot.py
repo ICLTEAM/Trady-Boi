@@ -310,13 +310,16 @@ def close_order(order_tradeID, order_units):
     else:
         print(json.dumps(rv, indent=2))
 
-def find_and_place_trail(instrument_used, sl_price):
-    current_price = get_current_ask_price(instrument_used)
+def find_and_place_trail(order_instrument, sl_price):
+    current_price = get_current_ask_price(order_instrument)
     distance_to_sl = abs(Decimal(current_price) - Decimal(sl_price))
     while distance_to_sl < 20:
         distance_to_sl = distance_to_sl * 10
-    id_used = get_trade_by_instrument(instrument_used)['tradeID']
-    create_trailing_stop_loss_order(id_used, distance_to_sl, "GTC")
+    try:
+        id_used = get_trade_by_instrument(order_instrument)['tradeID']
+        create_trailing_stop_loss_order(id_used, distance_to_sl, "GTC")
+    except TypeError:
+        print("Cannot get trade!")
 
 
 #===============================================================================================#
@@ -454,7 +457,7 @@ async def main(phone):
                         sl = signal_to_give[2]['sl']
                         # Any extra details such as limits
                         extras = signal_to_give[3]
-                        if extras[0] == None:
+                        if extras == None:
                             extras = ["EMPTY", "EMPTY", "EMPTY", "EMPTY"]
                         
                         # Number of units 
