@@ -2,30 +2,30 @@
 #+DATE:18-05-2020
 * Project Structure Plan
 ** Todo List
-   - Oscar: \\
-      [] Test out telegram method \\
-   - Viba: \\
-      [] Get familiar with github from the command line, using the branching method \\
-      [] Try and create some trades, play around with different functions \\
-      [] Research different algo trading methods. \\
-   - Issie: \\
-      [] Learn to use github with vscode \\
-      [] Get bot.py running on your computer (idk if you have to install the modules:six, oandapyV20, requests, telethon) \\
-      [] Create a practice trading account on https://www.oanda.com/uk-en/ and get API key and account ID \\
-         then add your details to bot.py. Place some trades and play around. \\
-      [] Research different algo trading methods. \\
-    - Isaac: \\
-      [] Create a project plan \\
-      [] Research different trading algo methods. \\
+*** Oscar: 
+      - Test out telegram method 
+*** Viba: 
+      - Get familiar with github from the command line, using the branching method 
+      - Try and create some trades, play around with different functions 
+      - Research different algo trading methods. 
+*** Issie: 
+      - Learn to use github with vscode 
+      - Get bot.py running on your computer (idk if you have to install the modules:six, oandapyV20, requests, telethon) 
+      - Create a practice trading account on https://www.oanda.com/uk-en/ and get API key and account ID 
+         then add your details to bot.py. Place some trades and play around. 
+      - Research different algo trading methods.
+ *** Isaac: 
+      - Create a project plan 
+      - Research different trading algo methods. 
          
 ** Useful Resources
- - Oanda.com \\
+ - Oanda.com 
    http://developer.oanda.com/rest-live-v20/introduction/
- - Oanda Web Trading Platform \\
+ - Oanda Web Trading Platform 
    https://trade.oanda.com/
  - Python oandapyV20 pypi.org Documentation  
    https://pypi.org/project/oandapyV20/
- - Oanda Github Repo \\
+ - Oanda Github Repo 
    https://github.com/hootnot/oanda-api-v20
- - Trady-Boi Repo \\
+ - Trady-Boi Repo 
    https://github.com/isaacjeffersonlee/Trady-Boi/blob/master/bot.py
