@@ -1,5 +1,5 @@
 # First Created: 17/05/2020
-# Authors: Oscar Wooding, Isaac Lee, Viba Battista, Issie Haycock
+# Authors: Oscar Wooding, Isaac Lee
 
 # ████████╗██████╗░░█████╗░██████╗░██╗░░░██╗  ██████╗░░█████╗░██╗
 # ╚══██╔══╝██╔══██╗██╔══██╗██╔══██╗╚██╗░██╔╝  ██╔══██╗██╔══██╗██║
